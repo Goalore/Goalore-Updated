@@ -132,7 +132,10 @@ $isDeactivated = get_user_meta($userID,'isDeactivated',true);
                             </div>
                         </div>
                         <div class="form-group">
-                            <a href="">Edit Goal Categories ></a>
+                            <a href="<?php the_permalink(138); ?>">Edit Goal Categories ></a>
+                        </div>
+                        <div class="form-group">
+                            <a href="<?php the_permalink(381) ?>">Reset Password ></a>
                         </div>
                         <div class="form-group">
                             <a href="javascript:;" id="deactivate-account">Deactivate Account ></a>

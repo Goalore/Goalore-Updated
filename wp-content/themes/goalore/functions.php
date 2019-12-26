@@ -296,19 +296,24 @@ function pmg_comment_tut_edit_comment( $comment_id )
 
 
 add_action('template_redirect',function() {
-	$url_path = trim(parse_url(add_query_arg(array()), PHP_URL_PATH), '/');
 
 	if(is_user_logged_in()){
 		$currentUserID = get_current_user_id(); 
 		$isDeactivated = get_user_meta($currentUserID,'isDeactivated',true);
-    	if($isDeactivated == '1'){
+		$TFAV = get_user_meta($currentUserID,'2FAV',true);
+    	if($TFAV == '1'){
+	    	if($isDeactivated == '1'){
 
-    		if(	is_page([13,6,100,2,94,3,11,96,9]) || is_singular('post') ){
+	    		if(	is_page([13,6,100,2,94,3,11,96,9]) || is_singular('post') ){
 
-    		}else{
-			    wp_redirect( home_url(PROFILE.'/'.SETTINGS) );
-	        	die;
-    		}
+	    		}else{
+				    wp_redirect( home_url(PROFILE.'/'.SETTINGS) );
+		        	die;
+	    		}
+	    	}
+    	}else{
+		    wp_redirect( home_url(TFA_SLUG) );
+        	die;
     	}
 
 	}else{
@@ -394,14 +399,14 @@ function save_custom_user_profile_fields($user_id){
 		    if($_POST['isDeactivated'] == '0'){
 				$subject = 'Goalore Account Reactivated';
 		    	$body = 'Dear ' . $name;
-				$body .= '<br><br>You Goalore account was reactivated by administrator.';
+				$body .= '<br><br>Your Goalore account was reactivated by administrator.';
 				$body .= '<br><br>Regards';
 				$body .= '<br><b>Goalore</b>';
 				wp_mail( $to, $subject, $body, $headers );
 		    }else{
 				$subject = 'Goalore Account Deactivated';
 				$body = 'Dear ' . $name;
-				$body .= '<br><br>You Goalore account was deactivated to reactivate your account contact administrator.';
+				$body .= '<br><br>Your Goalore account was deactivated to reactivate your account contact administrator.';
 				$body .= '<br><br>Regards';
 				$body .= '<br><b>Goalore</b>';
 				wp_mail( $to, $subject, $body, $headers );
@@ -415,27 +420,6 @@ function save_custom_user_profile_fields($user_id){
 }
 add_action('user_register', 'save_custom_user_profile_fields');
 add_action('profile_update', 'save_custom_user_profile_fields');
-
-/*
-function on_post_publish( $new_status, $old_status, $post ) {
-  if (get_post_type($post) !== 'post')
-        return;    //Don't touch anything that's not a post (i.e. ignore links and attachments and whatnot )
-
-    //If some variety of a draft is being published, dispatch an email
-    if( ( 'draft' === $old_status || 'auto-draft' === $old_status ) && $new_status === 'publish' ) {
-        		$allMembers = [];
-		$allUsers = get_users();
-		if(!empty($allUsers)){
-		 	foreach ( $allUsers as $user ) {
-		 		$allMembers[] = (string) $user->ID;
-		 	}
-		}
-		
-		$notification = 'A new blog has just been published "'.$post['title'].'"';
-    	// send_notification(1, $allMembers, $post['ID'], $notification);
-    }
-}
-add_action('transition_post_status', 'on_post_publish');*/
 
 
 add_action( 'transition_post_status', 'a_new_post', 10, 3 );

@@ -76,7 +76,7 @@ if(isset($attachments)){
                         <div class="gdh-btn-group">
                         	<?php if($isAdmin){ ?>
                             	<a href="javascript:;" id="update-goal-status" data-goal_id="<?php echo $GoalID ?>" class="btn btn-green">
-                            		<?php echo$GoalStatus == 'complete'? 'Incomplete' : 'Complete';  ?> Goal</a>
+                            		<?php echo$GoalStatus == 'complete'? 'Reopen' : 'Complete';  ?> Goal</a>
                         	<?php } 	
                         	if($canManageSub){  ?>
 	                            <a href="javascript:;" id="add-pov-btn" class="btn btn-purple">Add POV</a>

@@ -37,17 +37,45 @@ add_action( 'wp_ajax_nopriv_login_frm',function(){
 	wp_die();
 });
 
-/*add_action( 'admin_post_login_frm', function(){
-	set_transient('login_errors', 'Already loggedIn!', MINUTE_IN_SECONDS );
-	wp_redirect(site_url());
-	exit(); 
-} );*/
 
-/*add_action( 'admin_post_register_frm', function(){
-	set_transient('register_errors', 'No Registration when loggedIn!', MINUTE_IN_SECONDS );
-	wp_redirect(get_permalink(96));
-	exit(); 
-});*/
+add_action( 'wp_ajax_verify_otp',function(){
+	check_ajax_referer( 'ajax-otp-nonce', 'security' );
+	$response = [
+		'status' => 'failed',
+		'msg' => 'OTP Verification Failed!'
+	];
+	
+	$user_id = get_current_user_id();
+	$key = '2faotp' . $user_id;
+	$OTP = get_transient($key); 
+	$otp = $_POST['otp'];
+	if($otp == $OTP){
+		delete_transient($key);
+		$update = update_user_meta($user_id, '2FAV', 1);	
+		if($update){
+			$response['status'] = 'success';
+			$response['msg'] = 'OTP Verified Successfully!';
+
+			$categories = get_user_meta($user_id,'categories',true);
+			if(empty($categories)){
+				$response['redirect'] = get_permalink(138);
+			}
+		}
+
+	}else $response['msg'] = 'Incorrect OTP!';
+
+	echo json_encode($response);
+	wp_die();
+});
+
+add_action( 'wp_ajax_register_frm',function(){
+	$response = [
+		'status' => 'failed',
+		'msg' => 'You are already loggedin, logout and try again!'
+	];
+	echo json_encode($response);
+	wp_die();
+});
 
 add_action( 'wp_ajax_nopriv_register_frm',function(){
 	check_ajax_referer( 'ajax-register-nonce', 'security' );
@@ -81,12 +109,17 @@ add_action( 'wp_ajax_nopriv_register_frm',function(){
 			update_user_meta($user_id, 'dob', $dob);
 			update_user_meta($user_id, 'country', $country);
 			update_user_meta($user_id, 'zip_code', $zip_code);	
+			//2 Factor Authentication verify
+			update_user_meta($user_id, '2FAV', 0);	
+
+
+
 			$creds = [
 				'user_login'    => $username,
 		        'user_password' => $password,
 		        'remember'      => false,
 			];
-			$user = wp_signon( $creds, false );
+			// $user = wp_signon( $creds, false );
 			$response['status'] = 'success';
 			$response['msg'] = 'Registration Successfully!';
 			$response['redirect'] = get_permalink(138);
@@ -153,39 +186,70 @@ add_action('wp_ajax_user_category_update', function() {
 	wp_die();
 });
 
-/*add_action('admin_post_nopriv_register_user_category', function(){
-	wp_redirect(get_permalink(96));
-	exit(); 
-});*/
 
-/*add_action('admin_post_reset_pwd_frm', function(){
-	set_transient('reset_pwd_error', 'No resting password when loggedIn!', MINUTE_IN_SECONDS );
-	wp_redirect(get_permalink(100));
-	exit(); 
-});*/
+add_action('wp_ajax_reset_pwd', 'reset_member_password');
+add_action('wp_ajax_nopriv_reset_pwd', 'reset_member_password');
 
-add_action('admin_post_nopriv_reset_pwd_frm', function(){
-	$pageId = 100;
-	$user_login = $_POST['user_login'];
-	$user = get_user_by('email', $user_login);
+function reset_member_password() {
+	check_ajax_referer( 'ajax-reset-pwd-nonce', 'security' );
+	$response = [
+		'status' => 'failed',
+		'msg' => 'Registration Failed!'
+	];
+	$key = $_POST['key'];
+	$login = $_POST['login'];
+	$new_password = $_POST['new_password'];
+
+	 $user = check_password_reset_key($key,$login);
+	if(!is_wp_error($user)){
+
+		wp_set_password($new_password,$user->ID);
+
+        $response['status'] = 'success';
+		$response['msg'] = 'Password Updated Successfully!';
+
+    }else $response['msg'] = $user->get_error_message();
+
+	echo json_encode($response);
+	wp_die();
+}
+
+add_action('wp_ajax_nopriv_forgot_pwd', function(){
+	check_ajax_referer( 'ajax-forgot-pwd-nonce', 'security' );
+	$response = [
+		'status' => 'failed',
+		'msg' => 'An error occurred'
+	];
+	$user_login_r = $_POST['user_login'];
+	$user = get_user_by('email', $user_login_r);
 	if(!$user){
-		$user = get_user_by('login', $user_login);
+		$user = get_user_by('login', $user_login_r);
 	}
 	if($user){
-		$new_password = wp_generate_password();
-		wp_set_password($new_password, $user->user_id);
-		$message = 'Dear '.$user->first_name;
-		$message .= '<br>
-			Your new password is '. $password;
+		$adt_rp_key = get_password_reset_key( $user );
+		$user_login = $user->user_login;
+
+		$rp_link = add_query_arg( array(
+	    	'key' => $adt_rp_key,
+		    'login' => $user_login,
+		), get_permalink(381) );
+
+		$message = 'Dear '.$user->first_name.',';
+		$message .= '<br><br>We have received a reset password request from some one.<br>';
+		$message .= '<br>If this was a mistake, just ignore this email and nothing will happen.<br>';
+		$message .= '<br> To reset your password, visit the following address: <br><br>'.$rp_link;
+
 		$headers = array('Content-Type: text/html; charset=UTF-8');
 		wp_mail($user->user_email, 'Password Reset', $message, $headers );
-		set_transient('reset_pwd_error', 'Password Reset Email Sent!', MINUTE_IN_SECONDS );
-
+		
+		$response['status'] = 'success';
+		$response['msg'] = 'Password Reset Email Sent!';
 	}else{
-		set_transient('reset_pwd_error', 'User not found!', MINUTE_IN_SECONDS );
+		$response['msg'] = 'Member not found!';
 	}
-	wp_redirect(get_permalink($pageId));
-	exit(); 
+
+	echo json_encode($response);
+	wp_die();
 });
 
 
@@ -1278,7 +1342,7 @@ add_action('wp_ajax_delete_account',function(){
 		$subject = 'Goalore Account Deleted';
 
 		$name =  $user->first_name . ' ' . $user->last_name;
-		$body = 'Dear Admin';
+		$body = 'Dear ' . $name;
 		$body .= '<br><br>You Goalore account was deleted pemanently.';
 		$body .= '<br><br>Regards';
 		$body .= '<br><b>Goalore</b>';

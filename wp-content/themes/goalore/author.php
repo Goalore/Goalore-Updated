@@ -31,9 +31,9 @@ if($isDeleted == 1 || $isDeactivated == 1)
   $UNAVAILABLE = true;
 
 $full_name = get_user_meta($userID, 'full_name', true);
-$user_registered = date('Y/m/d',strtotime($user->user_registered));
+$user_registered = date('m/d/Y',strtotime($user->user_registered));
 $odob = get_user_meta($userID, 'dob', true);
-$dob = date('Y/m/d',strtotime($odob));
+$dob = date('m/d/Y',strtotime($odob));
 $country = get_user_meta($userID, 'country', true);
 $gender = get_user_meta($userID, 'gender', true);
 $profile_picture = get_user_profile_picture($userID);

@@ -57,3 +57,37 @@
 		} 
 
 	}
+
+	function send_two_factor_authentication_mail(){
+		
+		$user  = wp_get_current_user();
+		$user_id = $user->ID;
+
+		$verifed = get_user_meta($user_id, '2FAV', true);
+
+		if($verifed != 1){
+			$key = '2faotp' . $user_id;
+			$OTP = get_transient($key);
+			if(empty($OTP)){
+				$full_name = get_user_meta($user_id, 'full_name', true);
+				$OTP = wp_rand(100000,999999);
+				
+				set_transient($key, $OTP, HOUR_IN_SECONDS );
+
+				$message = 'Hello ' . $full_name;
+				$message .= '<br><br>Your OTP is: ' . $OTP;
+				$message .= '<br><br>OTP is only valid for next 60 minutes';
+				$message .= '<br><br><br>Regards,<br><b>Goalore</b>';
+
+				$subject = 'Goalore OTP';
+				$to = $user->user_email;
+				$headers = array('Content-Type: text/html; charset=UTF-8');
+				wp_mail($to, $subject, $message, $headers );
+			}
+
+		}else{
+			return true;
+		}
+
+	}
+

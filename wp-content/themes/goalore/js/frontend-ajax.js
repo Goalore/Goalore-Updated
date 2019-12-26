@@ -51,6 +51,130 @@ jQuery(document).ready(function($) {
 		}
 	});
 
+	$('#verify-otp-frm').submit(function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var otp = $.trim($this.find('#otp').val());
+		var security = $.trim($this.find('#security').val());
+		if(otp == ''){
+			alertify.notify('Please Enter OTP!', 'error', 5).dismissOthers();
+			return false;
+		}else{
+			$this.find('button[type="submit"]').attr('disabled',true);
+			$.ajax({
+		        url: frontendJSobject.ajaxURL,
+		        type: 'POST',
+		        data: {
+		            'action':'verify_otp',
+		            'otp':otp,
+		            'security':security
+		        },
+		        success: function( response ) {
+		        	var $data = JSON.parse(response);
+					if($data.status == 'success'){
+						alertify.notify($data.msg, 'success', 5).dismissOthers();
+						if($data.redirect){
+							window.location.href = $data.redirect;
+						}else{
+							window.location.href = frontendJSobject.userDashbord;
+						}
+					}else{
+						alertify.notify($data.msg, 'error', 5).dismissOthers();
+					}
+		        },
+				complete: function(){
+					$this.find('button[type="submit"]').attr('disabled',false);
+		        },
+		        error: errorHandler	
+		    });
+		}
+
+	});
+
+	$('#forgot-pwd-frm').submit(function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var user_login = $.trim($this.find('#user_login').val());
+		var security = $.trim($this.find('#security').val());
+		if(user_login == ''){
+			alertify.notify('Please Enter Email or Username!', 'error', 5).dismissOthers();
+			return false;
+		}else{
+			$this.find('button[type="submit"]').attr('disabled',true);
+			$.ajax({
+		        url: frontendJSobject.ajaxURL,
+		        type: 'POST',
+		        data: {
+		            'action':'forgot_pwd',
+		            'user_login':user_login,
+		            'security':security
+		        },
+		        success: function( response ) {
+		        	var $data = JSON.parse(response);
+					if($data.status == 'success'){
+						$this.trigger("reset");
+						alertify.notify($data.msg, 'success', 5).dismissOthers();
+					}else{
+						alertify.notify($data.msg, 'error', 5).dismissOthers();
+					}
+		        },
+				complete: function(){
+					$this.find('button[type="submit"]').attr('disabled',false);
+		        },
+		        error: errorHandler	
+		    });
+		}
+
+	});
+
+	$('#reset-pwd-frm').submit(function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var key = $.trim($this.find('#key').val());
+		var login = $.trim($this.find('#login').val());
+		var new_password = $.trim($this.find('#new_password').val());
+		var verify_password = $.trim($this.find('#verify_password').val());
+		var security = $.trim($this.find('#security').val());
+		if(new_password == ''){
+			alertify.notify('Please Enter New Password!', 'error', 5).dismissOthers();
+			return false;
+		}else if(verify_password == ''){
+			alertify.notify('Please Enter Verify Password!', 'error', 5).dismissOthers();
+			return false;
+		}else if(verify_password != new_password){
+			alertify.notify("Password didn't match!", 'error', 5).dismissOthers();
+			return false;		
+		}else{
+			$this.find('button[type="submit"]').attr('disabled',true);
+			$.ajax({
+		        url: frontendJSobject.ajaxURL,
+		        type: 'POST',
+		        data: {
+		            'action':'reset_pwd',
+		            'new_password':new_password,
+		            'key':key,
+		            'login':login,
+		            'security':security
+		        },
+		        success: function( response ) {
+		        	var $data = JSON.parse(response);
+					if($data.status == 'success'){
+						$this.trigger("reset");
+						alertify.notify($data.msg, 'success', 5).dismissOthers();
+						location.reload();
+					}else{
+						alertify.notify($data.msg, 'error', 5).dismissOthers();
+					}
+		        },
+				complete: function(){
+					$this.find('button[type="submit"]').attr('disabled',false);
+		        },
+		        error: errorHandler	
+		    });
+		}
+
+	});
+
 	$('#register-frm').submit(function(e){
 		e.preventDefault();
 		var $this 		= $(this);
@@ -1637,7 +1761,7 @@ jQuery(document).ready(function($) {
 		var type = $.trim($this.find('#type').val());
 		var description = $.trim($this.find('#description').val());
 		if(type == ''){
-			alertify.notify('Enter Type!', 'error', 5).dismissOthers();
+			alertify.notify('Select Type!', 'error', 5).dismissOthers();
 			return false;
 		}else if(description == ''){
 			alertify.notify('Enter Description!', 'error', 5).dismissOthers();

@@ -1132,3 +1132,14 @@ object {
 .guser-profile img{
 	border-radius: 50%;
 }
+.goal-item-header p{
+    font-family: 'OpenSans_Regular';	
+    font-size: 12px;
+    line-height: 17px;
+	color: #FFFFFF;
+    margin: 0;
+}
+.goal-item-header span.fa {
+    font-size: 14px;
+    margin-left: 5px;
+}

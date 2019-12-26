@@ -11,16 +11,24 @@ $attachments = get_field('attachments');
 $attachmentsCount = 0;
 if(!empty($attachments)) $attachmentsCount = count($attachments); 
 
+$target = get_field('target');
+$status = get_field('status');
+
 $goal = get_post();
 
 ?>
 <div class="col-12 col-md-6 col-lg-4">
     <div class="goalorew-card goal-card-item">
         <div class="goal-item-header">
-            <a href="<?php echo $goal->guid; ?>">
-                <h5>
-                    <?php the_title(); ?>
-                </h5>
+            <?php $title = get_the_title();
+                if(strlen($title > 135)) $subtitle = substr($title, 0, 5) . ' [...]';
+                else $subtitle = $title; ?>
+            <a href="<?php echo $goal->guid; ?>" title="<?php echo$title; ?>" >
+                <h5><?php echo $subtitle; ?></h5>
+                <p>Target Date: <?php echo date('m/d/Y', strtotime($target)); ?> 
+                    <span title="<?php echo $status; ?>" class="fa <?php echo $status=='private'?'fa-eye-slash':'fa-eye'; ?>"></span>
+                </p>
+
             </a>
         </div>
         <div class="goal-item-content">

@@ -110,7 +110,7 @@
 											    <td><a href="javascript:;"><?php the_title() ?></a></td>
 											    <td><?php echo get_the_date('d-m-Y'); ?></td>
 											    <td>
-											    	<a href="javascript:;" class="edit-ticket" data-id="<?php the_ID() ?>" data-status="open" ><img src="<?php echo get_template_directory_uri(); ?>/images/edit-icon.svg"></a>
+											    	<a href="javascript:;" class="edit-ticket" data-id="<?php the_ID() ?>" data-status="closed" ><img src="<?php echo get_template_directory_uri(); ?>/images/edit-icon.svg"></a>
 											    	<div class="description d-none" >
 											    		<?php the_content(); ?>
 											    	</div>

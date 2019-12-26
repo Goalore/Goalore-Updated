@@ -23,7 +23,12 @@ get_header(); ?>
                     <form id="contact-frm">
                         <div class="form-group">
                             <label>Type</label>
-                            <input type="text" name="type" id="type" class="form-control">
+                            <select name="type" id="type" class="form-control">
+                                <option value=""></option>
+                                <option>Report A Problem</option>
+                                <option>Making A Suggestion</option>
+                                <option>Other</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Description</label>

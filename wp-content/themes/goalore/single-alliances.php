@@ -53,7 +53,7 @@ $mygoals = New WP_Query([
 	'post_type' => 'goals',
 	'author'	=> $currentUserID,
 	'meta_key' 	=> 'status',
-	'meta_value'=> 'public',
+	// 'meta_value'=> 'public',
 	'post__not_in' => $linkedGoalsID
 ]);
 
@@ -242,7 +242,7 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 		                                        <a href="<?php echo get_author_posts_url($AL->user_id); ?>">
 		                                        	<h6><?php echo $AL->comment_author; ?></h6>
 		                                        </a>
-		                                        <small><?php echo date('d/m/Y',strtotime($AL->comment_date)); ?></small>
+		                                        <small><?php echo date('m/d/Y',strtotime($AL->comment_date)); ?></small>
 		                                    </div>
 		                                    <p><?php echo $AL->comment_content; ?></p>
 		                                    <div class="pov-gitem-footer">
