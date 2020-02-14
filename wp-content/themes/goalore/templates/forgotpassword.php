@@ -24,7 +24,7 @@ get_header();
                 <div class="gaolore-form">
                     <form id="forgot-pwd-frm" >
                         <div class="form-group">
-                            <label>Email</label>
+                            <label>Username or Email</label>
                             <input type="text" class="form-control" name="user_login" id="user_login" />
                         </div>
                         <?php wp_nonce_field( 'ajax-forgot-pwd-nonce', 'security' ); ?>

@@ -34,7 +34,7 @@
             <?php endif; ?>
           </div>
         </div>
-
+        <?php echo do_shortcode('[addtoany]'); ?>
       </div>
     </section>
 

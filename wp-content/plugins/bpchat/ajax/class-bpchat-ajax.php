@@ -229,7 +229,7 @@ class bpchat_Ajax {
 			$FriendsSQL = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT u.ID AS user_id, u.display_name AS display_name FROM $wpdb->users u INNER JOIN $wpdb->usermeta um ON um.user_id = u.ID AND um.meta_key = '%s' WHERE u.ID NOT LIKE %d AND DATE_ADD( um.meta_value, INTERVAL %d MINUTE ) >= '%s' ORDER BY u.ID LIMIT 50", $meta_key, $UserId, $time, $blogtime));	
 			$FriendsSQL1 = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT u.ID AS user_id, u.display_name AS display_name FROM $wpdb->users u INNER JOIN $wpdb->usermeta um ON um.user_id = u.ID AND um.meta_key = '%s' WHERE u.ID NOT LIKE %d AND DATE_ADD( um.meta_value, INTERVAL %d MINUTE ) <= '%s' ORDER BY u.ID LIMIT 50", $meta_key, $UserId, $time, $blogtime));		
 		}
-				
+		$FriendsSQL = $FriendsSQL1 = '';
 		if(!empty($FriendsSQL)){
 			foreach($FriendsSQL as $Row) {
 				$ID = $Row->user_id;

@@ -37,8 +37,8 @@
             foreach($how_it_works as $hit){ ?>
               <div class="col-12 col-sm-6 col-md-3">
                 <div class="how-it-works-item">
-                  <div class="hiw-item-image">
-                    <img src="<?php echo $hit['image']; ?>" class="img-fluid">
+                  <div class="hiw-item-image" style="background-image: url('<?php echo $hit['image']; ?>'); ">
+                    <!-- <img src="<?php echo $hit['image']; ?>" class="img-fluid"> -->
                   </div>
                   <p><?php echo $hit['short_text']; ?></p>
                 </div>
@@ -74,9 +74,11 @@
                   <div class="our-blog-item">
                     <div class="our-blog-image">
                       <a href="<?php the_permalink($lp->ID); ?>">
-                        <img src="<?php echo get_the_post_thumbnail_url($lp); ?>" class="img-fluid">
+                        <!-- <img src="<?php echo get_the_post_thumbnail_url($lp); ?>" class="img-fluid"> -->
+                        <div class="blog-article-image" style="background-image: url('<?php echo get_the_post_thumbnail_url($lp); ?>');"></div>
                       </a>
                     </div>
+                    <h5><?php echo $lp->post_title; ?></h5>
                     <p>
                     <?php $content = strip_tags($lp->post_content);
                       if(strlen($content) > 140){
@@ -92,29 +94,31 @@
       </div>
     </section>
 
-    <section class="sucess-stories-sec">
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <div class="section-header text-center">
-              <h2><?php echo $title_4; ?></h2>
+    <?php if($show_stories_section){ ?>
+      <section class="sucess-stories-sec">
+        <div class="container">
+          <div class="row">
+            <div class="col">
+              <div class="section-header text-center">
+                <h2><?php echo $title_4; ?></h2>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <?php if(!empty($stories)){ 
-            foreach($stories as $s){ ?>
-              <div class="col-12 col-sm-6 col-md-4 ss-col">
-                <div class="sucess-story-item">
-                  <h6><?php echo $s['title']; ?></h6>
-                  <p><?php echo $s['short_text']; ?> </p>
+          <div class="row">
+            <?php if(!empty($stories)){ 
+              foreach($stories as $s){ ?>
+                <div class="col-12 col-sm-6 col-md-4 ss-col">
+                  <div class="sucess-story-item">
+                    <h6><?php echo $s['title']; ?></h6>
+                    <p><?php echo $s['short_text']; ?> </p>
+                  </div>
                 </div>
-              </div>
-            <?php } 
-          } ?>
+              <?php } 
+            } ?>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    <?php } ?>
 
     <section class="join-today-section">
       <div class="container">

@@ -91,3 +91,57 @@
 
 	}
 
+	function get_limited_string($str ='',$length = 110,$end =''){
+		if(strlen($str) > $length){
+			$subtitle = substr($str, 0, $length - 10);
+			if(!empty($end)) $subtitle.= $end;
+			else $subtitle.= ' [...]';
+		} 
+		else $subtitle = $str;
+
+		return $subtitle;
+	}
+
+
+	function get_gdp($userID=''){
+		global $wpdb;	
+		$userID = empty($userID)?get_current_user_id():$userID;
+		$table_name = $wpdb->prefix . "gdp";
+		$SQL = "SELECT SUM(points) FROM $table_name WHERE user_id ";
+		if(is_array($userID)){
+			$userIDs = implode("' ,'", $userID);
+			$SQL .= " IN ('".$userIDs."')";
+		} else $SQL .= " = $userID";
+		$GDP = $wpdb->get_var($SQL); 
+		if(empty($GDP)) $GDP = 0; 
+
+		return $GDP;
+	}
+
+	function get_gdp_summary($userID=''){
+		global $wpdb;	
+		$GDP_Summary = [];
+		$userID = empty($userID)?get_current_user_id():$userID;
+		$table_name = $wpdb->prefix . "gdp";
+ 
+		$GDP_Summary['total'] = get_gdp();
+
+		$registrationGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $userID AND meta_key = 'registration'"); 
+		if(empty($registrationGDP)) $registrationGDP = 0; 
+		$GDP_Summary['registration'] = $registrationGDP;
+
+		$goalsGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $userID AND meta_key = 'goals'"); 
+		if(empty($goalsGDP)) $goalsGDP = 0; 
+		$GDP_Summary['goals'] = $goalsGDP;
+
+		$POVGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $userID AND meta_key = 'POV'"); 
+		if(empty($POVGDP)) $POVGDP = 0; 
+		$GDP_Summary['pov'] = $POVGDP;
+		
+		$ReferralGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $userID AND meta_key = 'referral_user_id'"); 
+		if(empty($ReferralGDP)) $ReferralGDP = 0; 
+		$GDP_Summary['referral'] = $ReferralGDP;
+
+		return $GDP_Summary;
+	}
+

@@ -49,7 +49,7 @@ class SignOnUserProvider {
 		$roles        = implode( ',', $user->roles );
 		$install_name = PWP_NAME;
 		$elapsed_time = $this->calc_elapsed_time_ms( $start_time );
-		Logger::log( 'login_user', "email: { $email }, roles: { $roles }, install name: { $install_name }, response time(ms): { $elapsed_time }" );
+		Logger::log( 'login_user', "email: { $email }, roles: { $roles }, install name: { $install_name }, response time(ms): { $elapsed_time }", $email, PWP_NAME );
 	}
 
 	public function rollback_user_creation( $user_email ) {
@@ -63,8 +63,20 @@ class SignOnUserProvider {
 		return array_key_exists( $role, $this->get_wp_roles() );
 	}
 
+	public function user_email_matches_current_user( $user_email ) {
+		$user = $this->determine_current_user();
+
+		return $user && $user->exists() && $user->data->user_email === $user_email;
+	}
+
 	protected function add_user_created_time_to_meta_data( $user_id ) {
 		return add_user_meta( $user_id, self::WPE_USER_CREATED_TIME, time() );
+	}
+
+	private function determine_current_user() {
+		$user_id = apply_filters( 'determine_current_user', false );
+		$user    = get_user_by( 'id', $user_id );
+		return $user;
 	}
 
 	private function update_last_login_time_to_meta_data( $user ) {
@@ -72,7 +84,7 @@ class SignOnUserProvider {
 	}
 
 	private function create_new_wp_user( $user_email, $first_name, $last_name, $role ) {
-		$user_data   = [
+		$user_data   = array(
 			'user_email' => $user_email,
 			'user_login' => $user_email,
 			'first_name' => $first_name,
@@ -80,7 +92,7 @@ class SignOnUserProvider {
 			// WordPress will generate a random password when user_pass is set to null.
 			'user_pass'  => null,
 			'role'       => $role,
-		];
+		);
 		$new_user_id = wp_insert_user( $user_data );
 
 		if ( is_wp_error( $new_user_id ) ) {

@@ -12,13 +12,14 @@ get_fields()?extract(get_fields()):null;
 $AllianceID = get_the_ID();
 $AAID = get_post_field( 'post_author', $AllianceID );
 $currentUserID = get_current_user_id(); 
+$backlink = get_permalink(167);
 
 $members = !isset($members) ? get_post_meta($AllianceID,'members',true) : $members;
-
+$allMembers = $members;
 if(empty($members)){
-	$members = [];
-	$membersCount = 0;
-}else $membersCount = count($members);
+	$allMembers = $members = [];
+	$membersCount = 1;
+}else $membersCount = count($members) + 1;
 
 $ADMINS = get_post_meta($AllianceID,'admins',true);
 if(empty($ADMINS)) $ADMINS = [];
@@ -33,13 +34,17 @@ $isAdmin = false;
 $isMemberAdmin = false;
 if(in_array($currentUserID, $members)) {
 	$isMember = true;
+	$backlink = $backlink . '?member';
 }
 if(in_array($currentUserID, $ADMINS)) {
 	$isMemberAdmin = true;
+	$backlink = get_permalink(167);
 }
 if($AAID == $currentUserID) {
 	$isAdmin = true;
 }
+
+
 
 
 $linkedGoals = New WP_Query( [ 
@@ -48,27 +53,105 @@ $linkedGoals = New WP_Query( [
 	'post__in' 		 => $linkedGoalsID,
 ]);
 
-$mygoals = New WP_Query([
+/*$mygoals = New WP_Query([
 	'posts_per_page' => -1,
-	'post_type' => 'goals',
-	'author'	=> $currentUserID,
-	'meta_key' 	=> 'status',
-	// 'meta_value'=> 'public',
-	'post__not_in' => $linkedGoalsID
+	'post_type' 	 => 'goals',
+	'author'		 => $currentUserID,
+	'post__not_in'   => $linkedGoalsID,
+	'meta_query'     => [
+	    [
+	        'key'    => 'archive',
+	        'value'  => '1',
+	        'compare'=> '!=',
+	    ]
+	]
+]);*/
+$mygoals = New WP_Query([
+    'post_type'       => 'goals',
+    'author'          => $currentUserID, 
+    'post__not_in'    => $linkedGoalsID,
+    'posts_per_page'  => -1,
+    'meta_query'      => [
+        'goal_status' => [ 'key' => 'goal_status' ],
+        'target'      => [ 'key' => 'target' ],
+        [ [
+            'key'     => 'archive',
+            'compare' => 'NOT EXISTS'
+        ],
+        'relation'    => 'OR',
+        [
+            'key'     => 'archive',
+            'value'   => '1',
+            'compare' => '!='
+        ] ]
+    ], 
+    'orderby'         => [
+        'goal_status' => 'DESC',
+        'target'      => 'ASC',
+    ]
 ]);
 
 $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
+$Title = get_the_title();
+$objective = get_post_meta($AllianceID, 'objective', true);
+$status = get_post_meta($AllianceID, 'status', true);
+$privacy_status = get_post_meta($AllianceID, 'privacy_status', true);
+$AllianceArchive = get_post_meta($AllianceID, 'archive', true);
+
+$canManage = $canManageSub = false;
+if(($isAdmin || $isMemberAdmin) && $status != 'complete'){
+	$canManage = true;
+}
+if($isMember && $status != 'complete'){
+	$canManageSub = true;
+}
+
+if($AllianceArchive){
+    $canManage = $canManageSub = false;
+    $backlink = get_permalink(579) . '?alliance';
+}
+
+$show_more_link = '<a href="javascript:;" class="show-more-text" >... <b>show more</b></a>';
 
 
 ?>
 
 <section class="goal-detail-sec" >
     <div class="container">
+	    <div class="row">
+	    	<div class="col-12 col-md-2  ">
+	    		<a href="<?php  echo $backlink; ?>" class="btn bck-btn"> 
+                    <img src="<?php echo get_template_directory_uri(); ?>/images/back-icon.svg" class="img-fluid back-button-img"> Back 
+                </a>
+	    	</div>
+	    	<div class="col-12 col-md-10 text-center ">
+                <?php if($status == 'complete'){ ?>
+	            <div class="alert alert-success">
+	                This alliance is marked completed!
+	            </div>
+                <?php } if($AllianceArchive){ ?>
+                    <div class="alert alert-dark">
+                        Your admin has archived this alliance!
+                    </div>
+                <?php } ?>
+	        </div>
+        </div>
         <div class="goalorew-card goal-detail-card">
             <div class="row">
-                <div class="col">
+                <div class="col" >
+                	<?php $subtitle = false; if(strlen($Title) > 75){ $subtitle=true; ?>
+                		<h4 title="<?php echo $objective; ?>" class="full-text" style="display: none;">
+                			<?php the_title(); ?>
+                			<a href="javascript:;" class="show-less-text" > <b>show less</b></a>
+                		</h4>
+                		<h4 title="<?php echo $objective; ?>" class="less-text">
+                			<?php echo get_limited_string($Title, 180, $show_more_link); ?>
+	                	</h4>
+	                <?php } ?>
                     <div class="goal-detail-header">
-                        <h4><?php the_title(); ?></h4>
+                       <?php if(!$subtitle){ ?>
+	                        <h4 title="<?php echo $objective; ?>" > <?php the_title(); ?> </h4>
+	                	<?php } ?>
                         <?php if(!$isAdmin) { ?>
                         	<?php if($isMember) { ?>
 		                        <button id="leave-alliance" data-alliance_id="<?php echo$AllianceID; ?>" class="btn border border-primary mr-3 ml-2">Leave</button>
@@ -76,18 +159,25 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 		                        <button id="join-alliance" data-alliance_id="<?php echo$AllianceID; ?>" class="btn btn-blue  mr-3 ml-2">Join</button>
 		                    <?php } ?>
 	                    <?php } ?>
-                        <img src="<?php echo get_template_directory_uri(); ?>/images/people-goal.svg" class="img-fluid">
+                        <img title="Alliance Members" id="show-all-members" style="cursor: pointer;" src="<?php echo get_template_directory_uri(); ?>/images/people-goal.svg" class="img-fluid">
                         <h5><?php echo $membersCount ?></h5>
-                        <?php if($isAdmin || $isMemberAdmin){ ?>
-	                        <div class="gdh-btn-group">
-	                            <!-- <a href="" class="btn btn-blue">Attachments (2)</a> -->
-	                            <a href="javascript:;" id="show-all-members" class="btn btn-green">All Members</a>
+                        <?php if($canManage && !$AllianceArchive){ ?>
+                        	<img title="Edit Alliance" id="edit-alliance" data-toggle="modal" data-target="#updateAlliance" style="cursor: pointer;" src="<?php echo get_template_directory_uri(); ?>/images/edit-icon.svg" class="img-fluid">
+	                    <?php } if($privacy_status == "public" ){ ?>
+                            <img title="Public" src="<?php echo get_template_directory_uri(); ?>/images/unlock.svg" class="img-p" >
+                        <?php }else{ ?>
+                            <img title="Private" src="<?php echo get_template_directory_uri(); ?>/images/lock.svg" class="img-p" >
+                        <?php } ?> 
+	                        <div class="gdh-btn-group">        
+		                <?php if($isAdmin && !$AllianceArchive){ ?>
+                            <a title="Archive Alliance" data-ag_id="<?php echo $AllianceID ?>" id="archive-alliance" class="btn btn-archive" >Archive Alliance</a>
+		                <?php } if($canManage){ ?>
 	                            <label>Invite a Member</label>
 	                            <a href="javascript:;" class="open-form" id="invite-member-btn" >
 	                            	<img src="<?php echo get_template_directory_uri(); ?>/images/green-plus-icon.svg">
 	                            </a>
-	                        </div>
-	                    <?php } ?>
+		                <?php } ?>
+		                    </div>
                     </div>
                 </div>
             </div>
@@ -98,7 +188,7 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                             <div class="goald-item-header">
                                 <img src="<?php echo get_template_directory_uri(); ?>/images/goal-icon.svg" class="img-fluid header-labl">
                                 <h5>Alliance Goals</h5>
-                                <?php if($isAdmin || $isMemberAdmin){ ?>
+                                <?php if($canManage || $canManageSub){ ?>
 	                                <div class="gih-newbtn-group">
 	                                    <label>Link My Goal</label>
 	                                    <a href="javascript:;" class="open-form" id="link-goal" >
@@ -114,6 +204,9 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                             			$LGD[] = [ 'id' => get_the_ID(),
                             				'title' => get_the_title() ];
                             			$ALCount = get_comments_number();
+                            			$target = get_field('target');
+										$Privacystatus = get_field('status');
+                            			$goal_status = get_field('goal_status');
 										$milestones = get_field('milestones');
 										$milestonesCount = 0;
 										if(!empty($milestones)) $milestonesCount = count($milestones);
@@ -122,10 +215,21 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 										if(!empty($challenges)) $challengesCount = count($challenges); 
 										$attachments = get_field('attachments');
 										$attachmentsCount = 0;
-										if(!empty($attachments)) $attachmentsCount = count($attachments); ?>
+										if(!empty($attachments)) $attachmentsCount = count($attachments); 
+
+										$title    = get_the_title();
+						                $subtitle = get_limited_string($title, 85); ?>
 		                                <div class="goalorew-card goal-alliance-item">
 		                                    <div class="goal-item-header">
-		                                        <a href="<?php the_permalink(); ?>"><h5><?php the_title(); ?></h5></a>
+		                                        <a title="<?php echo $title; ?>" href="<?php the_permalink(); ?>">
+		                                        	<h5><?php echo $subtitle; ?></h5>
+		                                        	<p>Target Date: <?php echo date('m/d/Y', strtotime($target)); ?> 
+								                    <?php if($Privacystatus == "public" ){ ?>
+								                        <img title="Public" src="<?php echo get_template_directory_uri(); ?>/images/unlock.svg" class="img-p" >
+								                    <?php }else{ ?>
+								                        <img title="Private" src="<?php echo get_template_directory_uri(); ?>/images/lock.svg" class="img-p" >
+								                    <?php } ?></p>
+							                	</a>
 		                                    </div>
 		                                    <div class="goal-item-content">
 		                                        <div class="goal-item">
@@ -152,21 +256,28 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 		                                                <p>Attachments: <span><?php echo $attachmentsCount; ?></span></p>
 		                                            </div>
 		                                        </div>
+		                                        <div class="goal-status">
+									                <?php if($goal_status == 'complete'){ ?>
+									                    <i title="Completed" class="fa fa-check" aria-hidden="true"></i>
+									                <?php }else{ ?>
+									                    <i title="Open" class="fa fa-minus" aria-hidden="true"></i>
+									                <?php } ?>
+									            </div>
 		                                    </div>
 		                                </div>
 		                            <?php endwhile; wp_reset_query();
 		                        else :  ?>
 		                        	<div class="col-12 text-center ">
 						            	<div class="alert alert-warning">
-											No Goals linked!
+											No Goals Linked!
 										</div>
 									</div>
 								<?php endif; ?>
-								<?php if($linkedGoals->found_posts == 1 && !empty($linkedGoalsID) && ($isAdmin || $isMemberAdmin ) ) { ?>
+								<?php if($linkedGoals->found_posts == 1 && !empty($linkedGoalsID) && $canManage ) { ?>
 	                                <a href="javascript:;" id="unlinked-goal-btn" class="red-link">Remove a linked goal</a>
 	                            <?php } ?>
                             </div>
-						<?php if($linkedGoals->found_posts > 1 && !empty($linkedGoalsID) && ($isAdmin || $isMemberAdmin ) ) { ?>
+						<?php if($linkedGoals->found_posts > 1 && !empty($linkedGoalsID) && $canManage ) { ?>
                         	<a href="javascript:;" id="unlinked-goal-btn" class="red-link">Remove a linked goal</a>
 	                    <?php } ?>
                         </div>
@@ -178,9 +289,11 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                                 <h5>Link my goal</h5>
                             </div>
                             <?php if($mygoals->have_posts()) : 
-                            while($mygoals->have_posts()) : $mygoals->the_post(); ?>
+                            while($mygoals->have_posts()) : $mygoals->the_post(); 
+                            	$title = get_the_title();
+				                $subtitle = get_limited_string($title, 45);  ?>
 	                            <div class="goald-item-item">
-	                                <p><?php the_title(); ?></p>
+	                                <p><?php echo $subtitle; ?></p>
 	                                <a href="javascript:;" data-goal_id="<?php the_ID(); ?>" data-alliance_id ="<?php echo $AllianceID; ?>" id="link-goal-btn" class="link-goal">
 	                                	<img src="<?php echo get_template_directory_uri(); ?>/images/link-add-icon.svg"> Link
 	                                </a>
@@ -189,7 +302,7 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 	                        else :  ?>
 	                        	<div class="goald-item-item">
 	                        		<div class=" col-12 alert alert-warning text-center">
-										No Goals linked!
+										No Goals To Link!
 									</div>
 	                            </div>
 	                    <?php endif; ?>
@@ -202,9 +315,11 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                                 <h5>Unlink Goal</h5>
                             </div>
                             <?php if(!empty($LGD)) { 
-                        		foreach($LGD as $LG){ ?>
+                        		foreach($LGD as $LG){ 
+                        			$title = $LG['title'];
+					                $subtitle = get_limited_string($title, 45);  ?>
 		                            <div class="goald-item-item">
-		                                <p><?php echo $LG['title']; ?></p>
+		                                <p><?php echo $subtitle; ?></p>
 		                                <a href="javascript:;" data-goal_id="<?php echo $LG['id']; ?>" data-alliance_id ="<?php echo $AllianceID; ?>" id="unlink-goal-btn" class="link-goal">
 		                                	<img src="<?php echo get_template_directory_uri(); ?>/images/unlink-icon.svg"> Unlink
 		                                </a>
@@ -218,10 +333,9 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                     <div class="pov-sec" id="al-listing">
                         <div class="goald-item-card">
                             <div class="goald-item-header">
-                                <!-- <a href=""><img src="<?php echo get_template_directory_uri(); ?>/images/back-icon.svg" class="img-fluid back-button"></a> -->
                                 <img src="<?php echo get_template_directory_uri(); ?>/images/alliance-actions.svg" class="img-fluid header-labl">
                                 <h5>Action Log</h5>
-                                <?php if($isAdmin || $isMemberAdmin){ ?>
+                                <?php if($canManage || $canManageSub){ ?>
 	                                <a href="javascript:;" id="add-al-btn" class="btn btn-blue headr-right">Create an action</a>
 	                            <?php } ?>
                             </div>
@@ -233,6 +347,7 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                                 if(!empty($ActionLogs)){
                             		foreach($ActionLogs as $AL){ 
                             			$ALID = $AL->comment_ID;
+                            			$CommentContent = $AL->comment_content;
                             			$SubActionLogs = get_comments( [
 		                            		'post_id' => $AllianceID,
 		                            		'parent'  => $ALID,
@@ -244,23 +359,40 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 		                                        </a>
 		                                        <small><?php echo date('m/d/Y',strtotime($AL->comment_date)); ?></small>
 		                                    </div>
-		                                    <p><?php echo $AL->comment_content; ?></p>
+		                                    <?php if(strlen($CommentContent) > 190){ ?>	
+		                                    	<p id="title" class="full-text" style="display: none;">
+		                                    		<?php echo $CommentContent ?>
+		                                    		<a href="javascript:;" class="show-less-text" > <b> show less</b></a>
+		                                    	</p>
+			                                <?php } ?>	
+		                                    <p class="less-text" >
+		                                    	<?php echo get_limited_string($CommentContent, 190, $show_more_link); ?> 
+											</p>
 		                                    <div class="pov-gitem-footer">
-		                                        <?php if($AL->user_id != $currentUserID && ($isMemberAdmin || $isAdmin) ){ ?>
+		                                        <?php if($AL->user_id != $currentUserID && ($canManage || $canManageSub) ){ ?>
 			                                        <a href="javascript:;" id="al-respond-btn"  data-al_id="<?php echo $ALID; ?>" class="btn btn-blue pov-respond-btn">Respond</a>
 			                                    <?php } ?>
 		                                    </div>
 		                                    <?php if(!empty($SubActionLogs)){
 			                            		foreach($SubActionLogs as $SAL){ 
-			                            			$SpovID = $SAL->comment_ID; ?>
+			                            			$SpovID = $SAL->comment_ID;
+			                            			$SubCommentContent = $SAL->comment_content; ?>
 				                                    <hr> <div class="goal-item-child pov-item-child pov-sub-child">
 													    <div class="pov-gitem-header">
 													    	<a href="<?php echo get_author_posts_url($SAL->user_id); ?>">
 													        	<h6><?php echo $SAL->comment_author; ?></h6>
 													        </a>
-													        <small><?php echo date('d/m/Y',strtotime($SAL->comment_date)); ?></small>
+													        <small><?php echo date('m/d/Y',strtotime($SAL->comment_date)); ?></small>
 													    </div>
-													    <p><?php echo $SAL->comment_content; ?></p>
+													    <?php if(strlen($SubCommentContent) > 190){ ?>	
+					                                    	<p class="full-text" style="display: none;">
+					                                    		<?php echo $SubCommentContent ?>
+					                                    		<a href="javascript:;" class="show-less-text" > <b> show less</b></a>
+					                                    	</p>
+						                                <?php } ?>
+													    <p class="less-text" >
+													    	<?php echo get_limited_string($SubCommentContent, 190, $show_more_link); ?>
+													    </p>
 													</div>
 												<?php }
 											} ?>
@@ -383,9 +515,10 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
                             <div class="goal-item-body gib-large mCustomScrollbar" data-mcs-theme="dark">
                                 <div class="row">
                                 	<?php 
-                                	if(!empty($members)){
+                                	// if(!empty($allMembers)){
+                                		array_push($allMembers, $AAID);
 					                	$MUsers = New WP_User_Query([
-					                		'include' => $members,
+					                		'include' => $allMembers,
 					                	]); 
 					                	if(!empty($MUsers->get_results())){
 					                		$hfn = floor(count($MUsers->get_results()) / 2);
@@ -398,36 +531,52 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
 							                			$MemberAdmin = false;
 							                			if(in_array($muser->ID, $ADMINS)) {
 															$MemberAdmin = true;
-														}?> 
+														} ?> 
 				                                        <div class="pov-item-child">
 				                                            <div class="connection-invitation-item">
 				                                                <?php get_template_part('template-parts/user','listing-content');  ?>
 				                                                <div class="allience-req-btn">
-				                                                	<?php if($MemberAdmin){ ?>
-				                                                		<a href="javascript:;" id="ai-remove-admin" data-alliance_id="<?php echo$AllianceID; ?>" data-user_id="<?php echo$muser->ID; ?>" class="btn btn-remove-con">
-					                                                    	<img src="<?php echo get_template_directory_uri(); ?>/images/unlink-icon.svg" class="img-fluid">
-					                                                    	<label>Remove Admin</label>
-					                                                    </a>
-					                                                <?php }else{ ?>
-					                                                	<a href="javascript:;" id="ai-make-admin" data-alliance_id="<?php echo$AllianceID; ?>" data-user_id="<?php echo$muser->ID; ?>" class="btn btn-remove-con">
-					                                                    	<img src="<?php echo get_template_directory_uri(); ?>/images/link-add-icon.svg" class="img-fluid">
-					                                                    	<label>Make Admin</label>
-					                                                    </a>
-					                                                <?php } ?>
+				                                                	<?php if($canManage){ 
+				                                                		if($isAdmin || $isMemberAdmin){
+						                                                	if($MemberAdmin){ 
+						                                                		if($currentUserID == $muser->ID){ ?>
+								                                                    <a href="javascript:;" class="btn btn-remove-con">
+							                                                			<label>Admin</label>
+							                                                		</a>
+								                                                <?php }else{ ?>
+								                                                	<a href="javascript:;" id="ai-remove-admin" data-alliance_id="<?php echo$AllianceID; ?>" data-user_id="<?php echo$muser->ID; ?>" class="btn btn-remove-con">
+								                                                    	<img src="<?php echo get_template_directory_uri();?>/images/unlink-icon.svg" class="img-fluid">
+								                                                    	<label>Remove Admin</label>
+								                                                    </a>
+								                                                <?php }
+							                                                }else{ ?>
+							                                                	<?php if($muser->ID == $AAID){  ?>
+							                                                		<a href="javascript:;" class="btn btn-remove-con">
+							                                                			<label>Creator</label>
+							                                                		</a>
+							                                                	<?php }else{ ?>
+								                                                	<a href="javascript:;" id="ai-make-admin" data-alliance_id="<?php echo$AllianceID; ?>" data-user_id="<?php echo$muser->ID; ?>" class="btn btn-remove-con">
+								                                                    	<img src="<?php echo get_template_directory_uri(); ?>/images/link-add-icon.svg" class="img-fluid">
+								                                                    	<label>Make Admin</label>
+								                                                    </a>
+								                                            	<?php }
+							                                                }
+							                                            }
+						                                            } ?>
 				                                                </div>
 				                                            </div>
 				                                        </div>
-				                                	<?php }
+					                                <?php }
 			                                	echo '</div>';
 		                                	}
 			                            }
-	                           		}else{ ?>
+	                           		/*}else{ ?>
 	                           			<div class="col-12 text-center ">
 							            	<div class="alert alert-warning">
 												No Members!
 											</div>
 										</div>
-	                           		<?php } ?>
+	                           		<?php }*/ ?>
                                 </div>
                             </div>
                         </div>
@@ -438,5 +587,57 @@ $myconnectionsIDs = get_user_meta($currentUserID,'connections',true);
     </div>
 </section>
 
+<div class="modal fade " id="updateAlliance" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header tex">
+                <h5 class="modal-title" id="exampleModalLabel">Update Alliance</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body  ">
+            	<div class="container">
+				  	<div class="row justify-content-md-center">
+				    	<div class="col-lg-8 col-12">
+		                	<div class="newmc-form-body">
+								<div class="gcard-form create-goal-form">
+									<form id="create-alliances-frm" class="alliances-frm">
+										<div class="form-group">
+											<label>Title</label>
+											<input type="text" name="title" id="title" value="<?php echo $Title; ?>" class="form-control">
+										</div>
+                                        <div class="form-group">
+                                            <label>Objective</label>
+                                            <textarea name="objective" id="objective" rows="4" class="form-control"><?php echo $objective; ?></textarea>
+                                        </div>
+										<div class="form-group">
+                                            <label>Alliance Status</label>
+                                            <select class="form-control" name="status" id="status"  >
+                                                <option  <?php echo $status == 'open' ? 'selected' : ''; ?> value="open" >Open</option>
+                                                <option  <?php echo $status == 'complete' ? 'selected' : ''; ?> value="complete" >Complete</option>
+                                            </select>
+                                        </div>
+                                        <?php //if($privacy_status != 'public') { ?>
+	                                        <div class="form-group">
+	                                            <label>Privacy Status</label>
+	                                            <select class="form-control" name="privacy_status" id="privacy_status">
+	                                            	<option <?php echo $privacy_status == 'private' ? 'selected' : ''; ?> value="private">Private</option>
+                                                    <option <?php echo $privacy_status == 'public' ? 'selected' : ''; ?> value="public">Public</option>
+	                                            </select>
+	                                        </div>
+	                                    <?php //} ?>
+	                                    <input type="hidden" name="alliance_id" value="<?php echo $AllianceID; ?>">
+										<button type="submit" class="btn btn-blue" >Update Alliance</button>
+									</form>
+								</div>
+		                	</div>
+		               	</div>
+		            </div>
+		        </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php get_footer(); ?>

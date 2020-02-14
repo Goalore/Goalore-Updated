@@ -19,6 +19,8 @@ $show_dob = isset($US['show_dob'])?$US['show_dob']:'';
 
 $isDeactivated = get_user_meta($userID,'isDeactivated',true);
 
+$ppc = ($public_profile == '0') ?'pp-s-hide':'';
+
 ?>
 
 <section class="user-setting-section inner-pages">
@@ -55,8 +57,9 @@ $isDeactivated = get_user_meta($userID,'isDeactivated',true);
                                 </div>
                             </div>
                         </div>
-                        <div class="form-check-grp row">
-                            <label class="col-12 col-md-6">Show Personal Info</label>
+                        <div class="form-check-grp row <?php echo $ppc; ?>">
+                            <!-- <label class="col-12 col-md-6">Show Personal Info</label> -->
+                            <label class="col-12 col-md-6">Show Country and Zip code</label>
                             <div class="col-12 col-md-6">
                                 <div class="form-check form-check-inline">
                                     <label class="custom-radiog">Yes
@@ -74,7 +77,7 @@ $isDeactivated = get_user_meta($userID,'isDeactivated',true);
                                 </div>
                             </div>
                         </div>
-                        <div class="form-check-grp row">
+                        <div class="form-check-grp row <?php echo $ppc; ?>">
                             <label class="col-12 col-md-6">Show Full Name</label>
                             <div class="col-12 col-md-6">
                                 <div class="form-check form-check-inline">
@@ -93,7 +96,7 @@ $isDeactivated = get_user_meta($userID,'isDeactivated',true);
                                 </div>
                             </div>
                         </div>
-                        <div class="form-check-grp row">
+                        <div class="form-check-grp row <?php echo $ppc; ?>">
                             <label class="col-12 col-md-6">Show Gender</label>
                             <div class="col-12 col-md-6">
                                 <div class="form-check form-check-inline">
@@ -112,7 +115,7 @@ $isDeactivated = get_user_meta($userID,'isDeactivated',true);
                                 </div>
                             </div>
                         </div>
-                        <div class="form-check-grp row">
+                        <div class="form-check-grp row <?php echo $ppc; ?>">
                             <label class="col-12 col-md-6">Show DOB</label>
                             <div class="col-12 col-md-6">
                                 <div class="form-check form-check-inline">
@@ -132,10 +135,10 @@ $isDeactivated = get_user_meta($userID,'isDeactivated',true);
                             </div>
                         </div>
                         <div class="form-group">
-                            <a href="<?php the_permalink(138); ?>">Edit Goal Categories ></a>
+                            <a href="<?php the_permalink(138); ?>?update=true">Edit Goal Categories ></a>
                         </div>
                         <div class="form-group">
-                            <a href="<?php the_permalink(381) ?>">Reset Password ></a>
+                            <a href="<?php echo wp_logout_url(get_permalink(381)); ?>">Reset Password ></a>
                         </div>
                         <div class="form-group">
                             <a href="javascript:;" id="deactivate-account">Deactivate Account ></a>

@@ -17,12 +17,13 @@
           <div class="col">
             <div class="site-footer">
               <div class="site-footer-logo">
-                <img src="<?php echo get_template_directory_uri(); ?>/images/footer-logo.svg">
+                <!-- <img src="<?php echo get_template_directory_uri(); ?>/images/footer-logo.svg"> -->
+                <img src="<?php echo get_template_directory_uri(); ?>/images/logo.svg">
               </div>
               <div class="site-footer-navigation">
                 <ul class="list-inline">
-                  <li class="list-inline-item"><a href="">Privacy Policy</a></li>
-                  <li class="list-inline-item"><a href="">Terms of Service</a></li>
+                  <li class="list-inline-item"><a href="<?php the_permalink(3); ?>">Privacy Policy</a></li>
+                  <li class="list-inline-item"><a href="<?php the_permalink(9); ?>">Terms of Service</a></li>
                 </ul>
               </div>
             </div>

@@ -29,11 +29,10 @@ $email = isset($_GET['email']) ? $_GET['email'] : ''; ?>
                 <div class="form-group">
                   <label>Member Type</label>
                   <select class="form-control" id="type" name="type" >
-                  	<option value="" ></option>
                   	<option value="individual" >Individual</option>
                   	<option value="private_company" >Private Company</option>
                   	<option value="non_profit" >Non Profit</option>
-                  	<option value="goverment" >Goverment</option>
+                  	<option value="goverment" >Government</option>
                   	<option value="community_group" >Community Group</option>
                   </select>
                 </div>
@@ -47,7 +46,7 @@ $email = isset($_GET['email']) ? $_GET['email'] : ''; ?>
                     <label>Date of Birth</label>
                     <div class="input-ttip">
                     	<?php $mindob = strtotime(date('Y-m-d').' -18 year'); ?>
-                    <input type="date" class="form-control"  name="dob" id="dob"  min="1920-01-01" max="<?php echo date('Y-12-31', $mindob); ?>" />
+                    <input type="date" placeholder="yyyy-mm-dd" class="form-control"  name="dob" id="dob"  min="1920-01-01" max="<?php echo date('Y-12-31', $mindob); ?>" />
                     <small class="form-text">*For age verification purposes</small>
                     </div>
                   </div>
@@ -56,11 +55,13 @@ $email = isset($_GET['email']) ? $_GET['email'] : ''; ?>
                 <div class="form-group">
                   <label>Username </label>
                   <input type="text" class="form-control"  name="username" id="username" />
+                  <small class="form-text-error"></small>
                 </div>
 
                 <div class="form-group">
                   <label>Email</label>
                   <input type="text" class="form-control"  name="email" value="<?php echo $email; ?>" id="email" />
+                  <small class="form-text-error"></small>
                 </div>
 
                 <div class="row">
@@ -77,26 +78,34 @@ $email = isset($_GET['email']) ? $_GET['email'] : ''; ?>
                 <div class="row">
                   <div class="form-group col-10 col-md-6">
                     <label>Country</label>
-                    <input type="text" class="form-control"  name="country" id="country" />
+                    <!-- <input type="text" class="form-control"  name="country" id="country" /> -->
+                    <select class="form-control"  name="country" id="country"  >
+                      <option>USA</option>
+                    </select>
                   </div>
                   <div class="form-group col-10 col-md-6">
                     <label>Zip Code</label>
                     <input type="text" class="form-control"  name="zip_code" id="zip_code" />
+                    <small class="form-text-error"></small>
                   </div>
                 </div>
 
                 <div class="form-group">
-                  <label class="check-container">Accept Terms and Conditions
+                  <label class="check-container">Accept <a href="<?php the_permalink(9); ?>" target="_blank"> Terms and Conditions</a>
                     <input type="checkbox" name="TermsConditions" id="terms-condition" >
                     <span class="checkmark"></span>
                   </label>
                 </div>
 
                 <div class="form-group">
-                  <label class="check-container">Accept Privacy Policy
+                  <label class="check-container">Accept <a href="<?php the_permalink(3); ?>" target="_blank"> Privacy Policy </a>
                     <input type="checkbox" name="PrivacyPolicy" id="privacy-policy" >
                     <span class="checkmark"></span>
                   </label>
+                </div>
+
+                <div class="form-group">
+                  <div class="g-recaptcha" data-sitekey="<?php echo GCV2_Publick; ?>"></div>
                 </div>
                 <?php wp_nonce_field( 'ajax-register-nonce', 'security' ); ?>
                 <input type="hidden" name="referral_code" id="referral_code" value="<?php echo isset($_GET['referral_code']) ? $_GET['referral_code'] : '';; ?>">

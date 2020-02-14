@@ -1,3 +1,11 @@
+<?php
+/**
+ * Admin Footer
+ *
+ * @package wpengine/common-mu-plugin
+ */
+
+?>
 <script>
 	jQuery(document).ready( function ($) { 
 		$('input.wpe-pointer').pointer({

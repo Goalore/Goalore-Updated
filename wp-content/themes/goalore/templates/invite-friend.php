@@ -23,6 +23,7 @@ get_header(); ?>
                         <div class="form-group">
                             <label>Recipient Email</label>
                             <input type="text" name="email" id="email" class="form-control">
+                            <small class="form-text-error"></small>
                         </div>
                         <div class="form-group">
                             <label>Subject</label>
@@ -31,6 +32,9 @@ get_header(); ?>
                         <div class="form-group">
                             <label>Message</label>
                             <textarea name="message" id="message" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="g-recaptcha" data-sitekey="<?php echo GCV2_Publick; ?>"></div>
                         </div>
                         <button type="submit" class="btn">Send</button>
                     </form>

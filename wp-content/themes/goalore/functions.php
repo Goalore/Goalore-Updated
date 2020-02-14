@@ -134,6 +134,7 @@ function goalore_scripts() {
 	wp_enqueue_script( 'goalore-alertify-min-js', get_template_directory_uri() . '/js/alertify.min.js', array(), '20151215', true );
 	wp_enqueue_script( 'goalore-jquery-mCustomScrollbar-js',get_template_directory_uri().'/js/jquery.mCustomScrollbar.js', array(), '20151215', true );
 	wp_enqueue_script( 'goalore-jquery-mousewheel-3.0.6-js',get_template_directory_uri().'/js/jquery.mousewheel-3.0.6.js', array(), '20151215', true );
+	wp_enqueue_script( 'goalore-google-recaptcha-api','https://www.google.com/recaptcha/api.js', array(), '20151215', false );
 	
 	wp_enqueue_script( 'goalore-frontend-ajax',  get_template_directory_uri() . '/js/frontend-ajax.js', array('jquery'), null, true );
     wp_localize_script( 'goalore-frontend-ajax', 'frontendJSobject',
@@ -250,9 +251,30 @@ function wpse156165_menu_add_class( $atts, $item, $args ) {
 add_filter( 'nav_menu_link_attributes', 'wpse156165_menu_add_class', 10, 3 );
 
 
+add_action('wp_head',function(){ ?>
+	<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<?php }, 999);
 add_action('wp_footer',function(){ ?>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 	<script type="text/javascript">	
-		$('#user-category-frm').submit(function(e){	
+		/*var datefield = document.createElement("input")
+			datefield.setAttribute("type", "date");
+			if (datefield.type!="date"){ 
+				console.log('init');
+			    document.write('<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />\n')
+			    document.write('<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"><\/script>\n');
+			}*/
+			// if ( $('#target').prop('type') != 'date' ) {
+				// $('#target').datepicker();
+			// }
+			/*if ( $('[type="date"]').prop('type') != 'date' ) {
+			    $('[type="date"]').datepicker({
+			    	dateFormat: 'yy-mm-dd',
+			    	 minDate: 0
+			    });
+			}*/
+
+		$('#user-category-frm').submit(function(e){				
 			var errMsg = $('#user-category-frm .register-response label');
 			if($('.cats:checkbox:checked').length == 0){
 				errMsg.text('At least select one category!');
@@ -298,35 +320,50 @@ function pmg_comment_tut_edit_comment( $comment_id )
 add_action('template_redirect',function() {
 
 	if(is_user_logged_in()){
-		$currentUserID = get_current_user_id(); 
-		$isDeactivated = get_user_meta($currentUserID,'isDeactivated',true);
-		$TFAV = get_user_meta($currentUserID,'2FAV',true);
-    	if($TFAV == '1'){
-	    	if($isDeactivated == '1'){
 
-	    		if(	is_page([13,6,100,2,94,3,11,96,9]) || is_singular('post') ){
+		if(	is_page([170,172,174]) && !current_user_can('administrator') ) {
+			wp_redirect( home_url('dashboard') );
+	        die;
+		}else{
 
-	    		}else{
-				    wp_redirect( home_url(PROFILE.'/'.SETTINGS) );
+			$currentUserID = get_current_user_id(); 
+			$isDeactivated = get_user_meta($currentUserID,'isDeactivated',true);
+			$TFAV = get_user_meta($currentUserID,'2FAV',true);
+	    	if($TFAV == '1'){
+		    	if($isDeactivated == '1'){
+
+		    		if(	is_page([13,6,100,381,2,94,3,11,96,9]) || is_singular('post') ){
+
+		    		}else{
+					    wp_redirect( home_url(PROFILE.'/'.SETTINGS) );
+			        	die;
+		    		}
+		    	}
+	    	}else{
+
+		    	if(	is_page([13,6,100,381,2,94,3,11,96,9]) || is_singular('post') ){
+		    	
+		    	}else{
+				    wp_redirect( home_url(TFA_SLUG) );
 		        	die;
-	    		}
+		    	}
 	    	}
-    	}else{
-		    wp_redirect( home_url(TFA_SLUG) );
-        	die;
-    	}
+		}
 
 	}else{
 		if(	
 			/*Static page */
-			!is_page([13,6,100,2,94,3,11,96,9]) || 
+			is_page([13,6,100,381,2,94,3,11,96,9]) || 
 
 			/*Blog Details Page */
 			is_singular('post') ||
 
-			/*Member Profile related pages*/
-			is_author()
+			is_front_page() ||
+
+			is_home()
+
 		) {
+		}else{
 		    wp_redirect( home_url() );
         	die;
 		}
@@ -406,7 +443,7 @@ function save_custom_user_profile_fields($user_id){
 		    }else{
 				$subject = 'Goalore Account Deactivated';
 				$body = 'Dear ' . $name;
-				$body .= '<br><br>Your Goalore account was deactivated to reactivate your account contact administrator.';
+				$body .= '<br><br>Your Goalore account has been deactivated. To reactivate, please contact Goalore administrator using the Contact Us feature.';
 				$body .= '<br><br>Regards';
 				$body .= '<br><b>Goalore</b>';
 				wp_mail( $to, $subject, $body, $headers );
@@ -443,7 +480,58 @@ function a_new_post( $new_status, $old_status, $post )
 	$notification = 'A new blog has just been published "'.$post->post_title.'"';
 	send_notification(0, $allMembers, $post->ID, $notification);
 
-
-
-    // do something awesome
 }
+
+
+/*From mail hooks*/
+add_filter('wp_mail_from','yoursite_wp_mail_from');
+function yoursite_wp_mail_from($content_type) {
+  return 'admin@goalore.com';
+}
+add_filter('wp_mail_from_name','yoursite_wp_mail_from_name');
+function yoursite_wp_mail_from_name($name) {
+  return 'Goalore Admin';
+}
+
+
+/*$timestamp = wp_next_scheduled( 'remove_read_notifications' );
+wp_unschedule_event( $timestamp, 'remove_read_notifications' );*/
+
+/*Remove read notification once a day*/
+if(!wp_next_scheduled('remove_read_notifications'))
+	wp_schedule_event( time() , 'daily', 'remove_read_notifications');
+
+add_action( 'remove_read_notifications', 'cron_remove_read_notifications_e8cfa5bc', 10, 0 );
+function cron_remove_read_notifications_e8cfa5bc() {
+    global $wpdb;
+	$table_notification = $wpdb->prefix . "notification";
+	$SQL = "SELECT * FROM $table_notification WHERE readby_user_ids != '' " ;
+	$results = $wpdb->get_results( $SQL );
+	if(!empty($results)){
+		foreach($results as $result){
+			$notify_id = $result->ID;
+			$readby_user_ids = $result->readby_user_ids;
+			$readby_user_ids = unserialize($readby_user_ids);
+			$user_ids = $result->user_ids;
+			$user_ids = unserialize($user_ids);
+			$intersect = array_intersect($user_ids, $readby_user_ids);
+			if(!empty($intersect)){
+				foreach($intersect as $key => $i){
+					unset($user_ids[$key]);
+				}
+			}
+			if(empty($user_ids)){
+				$wpdb->delete( $table_notification, array( 'ID' => $notify_id ) );
+			}else{
+				$user_ids = maybe_serialize($user_ids);
+				$wpdb->update($table_notification, array(
+					'user_ids' => $user_ids,
+				), ['ID' => $notify_id ] );
+			}
+
+		}
+	}
+}
+
+
+

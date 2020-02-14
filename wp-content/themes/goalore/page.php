@@ -14,27 +14,30 @@
 
 get_header();
 ?>
+<section class="blog-detail-section inner-pages general-page">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="section-header">
+                    <h2>
+                        <?php the_title();?>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <?php if (have_posts()) : 
+                	while (have_posts()) : the_post(); ?>
+		                <div class="blog-detail-content">
+		                    <?php the_content();?>
+		                </div>
+	            	<?php endwhile; 
+	            endif; ?>
+            </div>
+        </div>
+    </div>
+</section>
 
-	<div id="primary" class="content-area">
-		<main id="main" class="site-main">
 
-		<?php
-		while ( have_posts() ) :
-			the_post();
-
-			get_template_part( 'template-parts/content', 'page' );
-
-			// If comments are open or we have at least one comment, load up the comment template.
-			if ( comments_open() || get_comments_number() ) :
-				comments_template();
-			endif;
-
-		endwhile; // End of the loop.
-		?>
-
-		</main><!-- #main -->
-	</div><!-- #primary -->
-
-<?php
-get_sidebar();
-get_footer();
+<?php get_footer();

@@ -22,3 +22,6 @@ class ImpersonatedUserException extends \Exception {
 
 class MultisiteEnabledException extends \Exception {
 }
+
+class NoRefererException extends \Exception {
+}

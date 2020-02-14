@@ -202,14 +202,14 @@ if ( is_wpe_snapshot() ) {
         <?php if($env_ip_pairs) { ?>
             <p><b>The DNS for your domain(s) should be set to the following IP(s)</b></p>
             <?php foreach ($env_ip_pairs as $domain => $ip): ?>
-                <blockquote><code><?= $domain ?></code> - <code><?= $ip ?></code></blockquote>
+                <blockquote><code><?php echo $domain ?></code> - <code><?php echo $ip ?></code></blockquote>
             <?php endforeach; ?>
-        <? } else if ( (defined('WPE_VENDOR') && 'amazon' === WPE_VENDOR) ) { ?>
-            <p>Your DNS should be set to CNAME to <code><?= $site_info->name ?>.wpengine.com</code>.</p>
-        <? } else { ?>
+        <?php } else if ( (defined('WPE_VENDOR') && 'amazon' === WPE_VENDOR) ) { ?>
+            <p>Your DNS should be set to CNAME to <code><?php echo $site_info->name ?>.wpengine.com</code>.</p>
+        <?php } else { ?>
             <p>Please read over our <a href="https://wpengine.com/support/wordpress-best-practice-configuring-dns-for-wp-engine/">DNS Best Practices</a> before you set your DNS to CNAME: <code><?php echo esc_html( $site_info->name . '.wpengine.com' ); ?></code> or an A record to <code class="wpe_public_ip"><?php echo esc_html( $site_info->public_ip ); ?></code>.</p>
-        <? } ?>
-			<p>Your SFTP access (<i>not FTP!</i>) is at hostname <code><?= $site_info->sftp_host ?></code> or IP at <code class="wpe_sftp_ip"><?= $site_info->sftp_ip ?></code> on port <code><?= $site_info->sftp_port ?></code>. You will need to create a Username and Password in order to gain access. This can be <a href="<?php echo get_option('wpe-install-userportal','https://my.wpengine.com'); ?>" target="_blank">created here</a>.</p>
+        <?php } ?>
+			<p>Your SFTP access (<i>not FTP!</i>) is at hostname <code><?php echo $site_info->sftp_host ?></code> or IP at <code class="wpe_sftp_ip"><?php echo $site_info->sftp_ip ?></code> on port <code><?php echo $site_info->sftp_port ?></code>. You will need to create a Username and Password in order to gain access. This can be <a href="<?php echo get_option('wpe-install-userportal','https://my.wpengine.com'); ?>" target="_blank">created here</a>.</p>
 		</div><!--.span-30-->
       		<br class="clear"/>
 
@@ -221,21 +221,21 @@ if ( is_wpe_snapshot() ) {
             something happens where our cache should have been purged but wasn't.  For example, some URL plugins change
             behavior without alerting WordPress.
         </p>
-<? if ( count($memcached_servers) ) { ?>
+<?php if ( count($memcached_servers) ) { ?>
 		<p>
 			We also support the <a href="http://codex.wordpress.org/Class_Reference/WP_Object_Cache" target="_blank">WordPress Object Cache</a>
 			(which also powers the <a href="http://codex.wordpress.org/Transients_API" target="_blank">WordPress Transient API</a>).
 			Although this greatly accelerates both the front- and back-end, it also can cause trouble with certain plugins.
 			In particular you might need to purge this cache manually to get consistent behavior after making configuration changes.
 		</p>
-<? } ?>
+<?php } ?>
         <p>
             You use this button to purge all caches -- on our caching proxies, on the CDN, in memcached, everything.
         </p>
         <form method="post" name="options" action="<?php echo esc_url($form_url); ?>">
     		<?php wp_nonce_field( PWP_NAME . '-config' ); ?>
 			<table class="form-table">
-				<? if ( count($memcached_servers) ) { ?>
+				<?php if ( count($memcached_servers) ) { ?>
 				<tr valign="top">
 					<th scope="row"><label for="object-cache-enable">Object/Transient Cache</label></th>
 					<td>
@@ -254,7 +254,7 @@ if ( is_wpe_snapshot() ) {
 						</div>
 					</td>
 				</tr>
-				<? } ?>
+				<?php } ?>
 				<tr>
 					<td></td>
 					<td style="border-top: 1px solid #c0c0c0;">
@@ -278,7 +278,7 @@ if ( is_wpe_snapshot() ) {
         <p>
             <b>Configure your CDN</b> (described <a href="http://wpengine.com/faq/what-is-a-cdn/" target="_blank">here</a>).
         </p>
-    <? if ( isset( $wpe_netdna_domains ) && count( $wpe_netdna_domains ) > 0 ) { ?>
+    <?php if ( isset( $wpe_netdna_domains ) && count( $wpe_netdna_domains ) > 0 ) { ?>
             <form method="post" name="options" action="<?php echo esc_url( $form_url ); ?>">
             <?php wp_nonce_field( PWP_NAME . '-config' ); ?>
 			<table class="form-table">
@@ -296,13 +296,13 @@ if ( is_wpe_snapshot() ) {
 				        ?></ul>
 					</td>
 				</tr>
-	<? if ( WPE_CDN_DISABLE_ALLOWED ) { ?>
+	<?php if ( WPE_CDN_DISABLE_ALLOWED ) { ?>
 				<tr valign="top">
 					<th scope="row"><label for="cdn-enable">CDN Activated</label></th>
 					<td>
 	                    <select name="cdn-enable">
-	                        <option value="1" <?= $this->is_cdn_enabled() ? "selected" : "" ?> >Enabled</option>
-	                        <option value="0" <?= $this->is_cdn_enabled() ? "" : "selected" ?> >Disabled</option>
+	                        <option value="1" <?php echo $this->is_cdn_enabled() ? "selected" : "" ?> >Enabled</option>
+	                        <option value="0" <?php echo $this->is_cdn_enabled() ? "" : "selected" ?> >Disabled</option>
 	                    </select>
 						<div class="description">
          					Generally you want this enabled for maximum speed and scale, but if your site is under active development it might
@@ -315,16 +315,16 @@ if ( is_wpe_snapshot() ) {
 	                    <input type="submit" name="cdn-control" value="Save" class="button-primary" />
 	                </p></td>
 				</tr>
-	<? } ?>
+	<?php } ?>
 			</table>
             </form>
-    <? } else { ?>
+    <?php } else { ?>
             <p>
                 Right now <b>no domains are configured</b> for use with a CDN. If you're ready to enable CDN support,
-                visit the user portal at <a href="https://my.wpengine.com/installs/<?= $site_info->name ?>/cdn" target="_blank">https://my.wpengine.com/installs/<?= $site_info->name ?>/cdn</a>
+                visit the user portal at <a href="https://my.wpengine.com/installs/<?php echo $site_info->name ?>/cdn" target="_blank">https://my.wpengine.com/installs/<?php echo $site_info->name ?>/cdn</a>
                 for more information.
             </p>
-    <? } ?>
+    <?php } ?>
 
         <hr/>
 
@@ -336,8 +336,8 @@ if ( is_wpe_snapshot() ) {
 				<th scope="row"><label for="wpe-adminbar-enable">WP Engine Admin Bar</label></th>
 				<td>
                     <select name="wpe-adminbar-enable">
-                        <option value="1" <?= $this->is_wpengine_admin_bar_enabled() ? "selected" : "" ?> >Enabled</option>
-                        <option value="0" <?= $this->is_wpengine_admin_bar_enabled() ? "" : "selected" ?> >Disabled</option>
+                        <option value="1" <?php echo $this->is_wpengine_admin_bar_enabled() ? "selected" : "" ?> >Enabled</option>
+                        <option value="0" <?php echo $this->is_wpengine_admin_bar_enabled() ? "" : "selected" ?> >Disabled</option>
                     </select>
 					<div class="description comment">
         				Should we display the "WP Engine Quick Links" menu in the WordPress admin titlebar?
@@ -377,8 +377,8 @@ if ( is_wpe_snapshot() ) {
                     <th scope="row"><label for="wpe-news-feed-enable">"WP Engine has your back" News Feed</label></th>
                     <td>
                         <select name="wpe-news-feed-enable">
-                            <option value="1" <?= $this->is_wpengine_news_feed_enabled() ? "selected" : "" ?> >Enabled</option>
-                            <option value="0" <?= $this->is_wpengine_news_feed_enabled() ? "" : "selected" ?> >Disabled</option>
+                            <option value="1" <?php echo $this->is_wpengine_news_feed_enabled() ? "selected" : "" ?> >Enabled</option>
+                            <option value="0" <?php echo $this->is_wpengine_news_feed_enabled() ? "" : "selected" ?> >Disabled</option>
                         </select>
                         <div class="description comment ">
                             Enable or disable the news feed in the WP Engine Plugin and on the WordPress Dashboard.
@@ -407,16 +407,16 @@ if ( is_wpe_snapshot() ) {
             You can always retrieve the most recent entries from the error log with the following links:
         </p>
         <p>
-            [<a href="<?= $this->get_access_log_url( 'current' ) ?>">
+            [<a href="<?php echo $this->get_access_log_url( 'current' ) ?>">
                 Access Log &mdash; Live Site &mdash; Current
             </a>]<br>
-            [<a href="<?= $this->get_access_log_url( 'previous' ) ?>">
+            [<a href="<?php echo $this->get_access_log_url( 'previous' ) ?>">
                 Access Log &mdash; Live Site &mdash; Previous
             </a>]<br>
-            [<a href="<?= $this->get_error_log_url( true ) ?>" target="_blank">
+            [<a href="<?php echo $this->get_error_log_url( true ) ?>" target="_blank">
                 Error Log &mdash; Live Site
             </a>]<br>
-            [<a href="<?= $this->get_error_log_url( false ) ?>" target="_blank">
+            [<a href="<?php echo $this->get_error_log_url( false ) ?>" target="_blank">
                 Error Log &mdash; Staging Site
             </a>]
         </p>
@@ -442,8 +442,8 @@ if ( is_wpe_snapshot() ) {
 				<th scope="row"><label for="rand_enabled">Allow ORDER BY RAND()</label></th>
 				<td>
                     <select name="rand_enabled">
-                        <option value="1" <?= $this->is_rand_enabled() ? "selected" : "" ?> >Enabled</option>
-                        <option value="0" <?= $this->is_rand_enabled() ? "" : "selected" ?> >Disabled</option>
+                        <option value="1" <?php echo $this->is_rand_enabled() ? "selected" : "" ?> >Enabled</option>
+                        <option value="0" <?php echo $this->is_rand_enabled() ? "" : "selected" ?> >Disabled</option>
                     </select>
 					<div class="description">
 						Normally we disable <code>ORDER BY RAND()</code> orderings in MySQL queries because this
@@ -457,7 +457,7 @@ if ( is_wpe_snapshot() ) {
 			<tr valign="top">
 				<th scope="row"><label for="regex_html_post_process">HTML Post-Processing</label></th>
 				<td>
-                    <textarea name="regex_html_post_process" cols="60" rows="5"><?= htmlspecialchars($fv_regex_html_post_process) ?></textarea>
+                    <textarea name="regex_html_post_process" cols="60" rows="5"><?php echo htmlspecialchars($fv_regex_html_post_process) ?></textarea>
 					<div class="description">
 						A mapping of PHP regular expressions to replacement values which are executed on all blog
 						HTML after WordPress finishes emitting the entire page.  The pattern and replacement
@@ -482,18 +482,18 @@ if ( is_wpe_snapshot() ) {
 		<form id="staging" method="post" name="options" action="<?php echo esc_url($form_url); ?>">
 
 
-		<? if ( $snapshot_state['have_snapshot'] ) { ?>
+		<?php if ( $snapshot_state['have_snapshot'] ) { ?>
 			<div class="alert alert-message alert-success">
-				<h3 class="wpe-callout"><i class="wpe-icon-hdd icon-hdd"></i>  Staging Status: <?= htmlspecialchars( $snapshot_state['status'] ) ?></h3>
+				<h3 class="wpe-callout"><i class="wpe-icon-hdd icon-hdd"></i>  Staging Status: <?php echo htmlspecialchars( $snapshot_state['status'] ) ?></h3>
 			    	<p>
-				<? if ( $snapshot_state['is_ready'] ) { ?>
-					Last staging snapshot was taken on <span class="wpe_last_updated_date"><?= date( "Y-m-d g:i:sa", $snapshot_state['last_update'] + (get_option( "gmt_offset" ) * 60 * 60) ) ?></span>. Access it here: <a target="_blank" href="<?= $snapshot_state['staging_url'] ?>"><b><?= htmlspecialchars( $snapshot_state['staging_url'] ) ?></b></a>
-				<? } else { ?>
+				<?php if ( $snapshot_state['is_ready'] ) { ?>
+					Last staging snapshot was taken on <span class="wpe_last_updated_date"><?php echo date( "Y-m-d g:i:sa", $snapshot_state['last_update'] + (get_option( "gmt_offset" ) * 60 * 60) ) ?></span>. Access it here: <a target="_blank" href="<?php echo $snapshot_state['staging_url'] ?>"><b><?php echo htmlspecialchars( $snapshot_state['staging_url'] ) ?></b></a>
+				<?php } else { ?>
 					<b>Please wait</b> while the staging area continues to be deployed.  It can take a while!  You can <a href="<?php echo $plugin->get_plugin_admin_url('admin.php?page=wpengine-staging'); ?>">refresh this page</a> to check on its progress.
-				<? } ?>
+				<?php } ?>
 			    	</p>
 			</div>
-		<? } ?>
+		<?php } ?>
 
 		<h2><i class="wpe-icon-hdd icon-large icon-hdd"></i> What is a Staging Area?</h2>
 		<p>
@@ -507,7 +507,7 @@ if ( is_wpe_snapshot() ) {
 		    <p class="submit submit-top">
 			<?php wp_nonce_field( PWP_NAME . '-config' ); ?>
 
-			<button type="submit" <?php if( @$snapshot_state['is_ready'] ) { echo 'data-confirm="true"'; } ?> name="snapshot" value="<?= $have_snapshot ? "Recreate" : "Create" ?> staging area" class="btn btn-primary"><i class="icon-upload icon-white"></i> Copy site from LIVE to STAGING </button>
+			<button type="submit" <?php if( @$snapshot_state['is_ready'] ) { echo 'data-confirm="true"'; } ?> name="snapshot" value="<?php echo $have_snapshot ? "Recreate" : "Create" ?> staging area" class="btn btn-primary"><i class="icon-upload icon-white"></i> Copy site from LIVE to STAGING </button>
 			 <?php if( @$snapshot_state['is_ready'] AND current_user_can('administrator') ) : ?>
 				<button onClick="wpe_deploy_staging();" type="button" name="deploy-from-staging" value="Deply from Staging" class="<?php if(!in_array('deploy-staging', get_user_meta($current_user->ID,'hide-pointer',false))) { echo 'wpe-pointer'; } ?> btn btn-danger"><i class="icon-download icon-white"></i> Deploy site from STAGING to LIVE </button>
 			<?php endif; ?>
@@ -590,5 +590,5 @@ $can_push_staging = is_staging_gte($production_version, $staging_status['version
 </div><!--.wrap-->
 <div class="wpe-plugin-version">
 	<hr/>
-	<p>WP Engine Plugin v<?= WPE_PLUGIN_VERSION ?> | <a href="https://my.wpengine.com/support" target="_blank">Support</a></p>
+	<p>WP Engine Plugin v<?php echo WPE_PLUGIN_VERSION ?> | <a href="https://my.wpengine.com/support" target="_blank">Support</a></p>
 </div>

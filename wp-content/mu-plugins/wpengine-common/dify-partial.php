@@ -9,7 +9,7 @@
 function display_wpe_dify($show_hidden, $install_name)
 {
 ?>
-	<div class='wpe-dify-posts' data-page=0 data-source='wp_admin' data-show-hidden=<?= $show_hidden ?> data-install-name=<?= $install_name ?> >
+	<div class='wpe-dify-posts' data-page=0 data-source='wp_admin' data-show-hidden=<?php echo $show_hidden ?> data-install-name=<?php echo $install_name ?> >
 		<hr class="wpe-dify-section-break">
 		<div class="wpe-dify-section-title">
 			<h2>WP Engine has your back</h2>

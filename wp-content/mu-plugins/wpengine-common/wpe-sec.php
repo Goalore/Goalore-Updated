@@ -4,7 +4,7 @@ add_action( 'wp_login_failed', 'wpesec_on_login_failed' );
 
 function wpesec_on_login_failed( $username ) {
 	// $username is already sanitize_user'ed
-	$addr = $_SERVER['REMOTE_ADDR'];
+	$addr   = $_SERVER['REMOTE_ADDR'];
 	$prefix = 'wpe_rate_limits_login_failed_' . floor( time() / 300 );
 
 	$bump = array(
@@ -18,7 +18,7 @@ function wpesec_on_login_failed( $username ) {
 		// or default value even though memcached does
 		// so we atomic add the key first every time :/
 		// expiry time is just a touch longer than the window
-		if ( !wp_cache_add( $key, 1, '', 400 ) ) {
+		if ( ! wp_cache_add( $key, 1, '', 400 ) ) {
 			wp_cache_incr( $key );
 		}
 	}
@@ -33,13 +33,13 @@ function wpesec_on_before_login() {
 
 	// need to sanitize to match failed login value
 	$username = sanitize_user( $_POST['log'] );
-	$addr = $_SERVER['REMOTE_ADDR'];
-	$prefix = 'wpe_rate_limits_login_failed_' . floor( time() / 300 );
+	$addr     = $_SERVER['REMOTE_ADDR'];
+	$prefix   = 'wpe_rate_limits_login_failed_' . floor( time() / 300 );
 
 	$check = array(
-		"${prefix}_addr_$addr" => 1000,
+		"${prefix}_addr_$addr"     => 1000,
 		"${prefix}_user_$username" => 20,
-		"${prefix}_global" => 10000,
+		"${prefix}_global"         => 10000,
 	);
 
 	foreach ( $check as $key => $limit ) {
@@ -62,10 +62,10 @@ function wpesec_encourage_tls() {
 	global $wpengine_platform_config;
 	$domain = PWP_NAME . '.' . $wpengine_platform_config['locations']['domain_base'];
 
-	if (!force_ssl_admin()                        // we're not already forcing ssl
-		&& isset($_SERVER['HTTP_HOST'])           // we're not in wp-cli
+	if ( ! force_ssl_admin()                        // we're not already forcing ssl
+		&& isset( $_SERVER['HTTP_HOST'] )           // we're not in wp-cli
 		&& $domain === $_SERVER['HTTP_HOST']      // our request came through blah.wpengine.com
-		&& false !== strpos(admin_url(), $domain) // our admin root contains blah.wpengine.com
+		&& false !== strpos( admin_url(), $domain ) // our admin root contains blah.wpengine.com
 	) {
 		force_ssl_admin( true );
 	}

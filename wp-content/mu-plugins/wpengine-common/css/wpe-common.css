@@ -13,8 +13,8 @@
 	text-shadow:0 1px 0 #fff;
 }
 .wpe-notices.updated p {
-	 padding-left:25px;
-	 background:url(../images/favicon.ico) no-repeat 0px 2px;
+	padding-left:25px;
+	background:url(../images/favicon.ico) no-repeat 0px 2px;
 }
 .wpe-notices {
 	margin-bottom:0;
@@ -256,16 +256,16 @@ form#deploy-from-staging label {
 }
 .wpe-dify-post-date {
 	padding-top: 10px;
-    color: #999999;
-    clear: both;
+	color: #999999;
+	clear: both;
 }
 .wpe-dify-show-more {
-    padding: 20px 0px;
-    text-align: center;
-    display: block;
+	padding: 20px 0px;
+	text-align: center;
+	display: block;
 }
 .wpe-dify-show-more a {
-    display: none;
+	display: none;
 }
 .wpe-dify-blog-spinner {
 	display: none;

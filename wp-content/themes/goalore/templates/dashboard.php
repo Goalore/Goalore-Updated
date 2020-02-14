@@ -19,11 +19,30 @@ $currentUserID = get_current_user_id();  ?>
                     </div>
                     <div class="gcard-body">
                         <ul class="b-body-nav">
-                            <?php $goals = get_posts(['numberposts'=>3,'post_type'=>'goals','author'=>$currentUserID]);
+                            <?php $goals = get_posts([
+                                'post_type'=>'goals',
+                                'author'=>$currentUserID,
+                                'numberposts'=>3,
+                                'meta_query' => [
+                                    [
+                                        'key'     => 'archive',
+                                        'compare' => 'NOT EXISTS'
+                                    ],
+                                    'relation' => 'OR',
+                                    [
+                                        'key'     => 'archive',
+                                        'value'   => '1',
+                                        'compare' => '!='
+                                    ]
+                                ]
+                            ]);
                             if(!empty($goals)){
                                 foreach($goals as $goal){ ?>
                                     <li><a href="<?php the_permalink($goal->ID); ?>">
-                                        <?php echo $goal->post_title; ?>
+                                        <?php $title = $goal->post_title;
+                                        if(strlen($title) > 35) $subtitle = substr($title, 0, 33) . ' [...]';
+                                        else $subtitle = $title; 
+                                        echo $subtitle; ?>
                                     </a></li>
                                 <?php }
                             }else{ ?>
@@ -37,11 +56,79 @@ $currentUserID = get_current_user_id();  ?>
                     </div>
                     <div class="gcard-body">
                         <ul class="b-body-nav">
-                            <?php $goals = get_posts(['numberposts'=>3,'post_type'=>'alliances','author'=>$currentUserID]);
-                            if(!empty($goals)){
-                                foreach($goals as $goal){ ?>
-                                    <li><a href="<?php the_permalink($goal->ID); ?>">
-                                        <?php echo $goal->post_title; ?>
+                            <?php /*$alliances = get_posts([
+                                'post_type'=>'alliances',
+                                'author'=>$currentUserID,
+                                'numberposts'=>3,
+                                'meta_query' => [
+                                    [
+                                        'key'     => 'archive',
+                                        'compare' => 'NOT EXISTS'
+                                    ],
+                                    'relation' => 'OR',
+                                    [
+                                        'key'     => 'archive',
+                                        'value'   => '1',
+                                        'compare' => '!='
+                                    ]
+                                ]
+                            ]);*/
+                            $myAdminAlliances = New WP_Query([
+                                'post_type'       => 'alliances',
+                                'posts_per_page'  => -1,
+                                'meta_key'        => 'status',
+                                'orderby'         => 'meta_value',
+                                'order'           => 'DESC',
+                                'meta_query'      => [
+                                    [
+                                        'key'     => 'admins',
+                                        'value'   => '"' . $currentUserID . '"',
+                                        'compare' => 'LIKE',
+                                    ],
+                                ],
+                            ]);
+
+                            if($myAdminAlliances->have_posts()){
+                                $myAdminAlliancesIDs = wp_list_pluck( $myAdminAlliances->posts, 'ID' );
+
+                                //Inlcude Alliance ID with existing result with OR condidtion 
+                                function inlcude_post_id_with_OR_condidtion( $where, $query ) { 
+                                    $where = str_replace("AND wp_posts.post_author IN", "OR wp_posts.post_author IN", $where);
+                                    return $where;
+                                } add_filter( 'posts_where', 'inlcude_post_id_with_OR_condidtion', 10, 2 );
+
+                            }else{
+                                $myAdminAlliancesIDs = [];
+                            }
+
+                            $alliances = New WP_Query([
+                                'post__in'       => $myAdminAlliancesIDs,
+                                'post_type'      => 'alliances',
+                                'author'         => $currentUserID, 
+                                'posts_per_page' => 3,
+                                'meta_query'     => [
+                                    'status' => [ 'key' => 'status' ],
+                                    [
+                                        [
+                                            'key'     => 'archive',
+                                            'compare' => 'NOT EXISTS'
+                                        ],
+                                        'relation' => 'OR',
+                                        [
+                                            'key'     => 'archive',
+                                            'value'   => '1',
+                                            'compare' => '!='
+                                        ]
+                                    ]
+                                ], 'orderby' => [ 'status' => 'DESC' ]
+                            ]);
+                            if(!empty($alliances->posts)){
+                                foreach($alliances->posts as $alliance){ ?>
+                                    <li><a href="<?php the_permalink($alliance->ID); ?>">
+                                        <?php $title = $alliance->post_title;
+                                        if(strlen($title) > 35) $subtitle = substr($title, 0, 33) . ' [...]';
+                                        else $subtitle = $title; 
+                                        echo $subtitle; ?>
                                     </a></li>
                                 <?php }
                             }else{ ?>
@@ -70,7 +157,7 @@ $currentUserID = get_current_user_id();  ?>
                                 </div>
                                 <div class="form-group col-12 col-md-6">
                                     <label>Target Date of Completion</label>
-                                    <input type="date" min="<?php echo date('Y-m-d'); ?>"  name="target" id="target" class="form-control">
+                                    <input type="date" placeholder="yyyy-mm-dd" min="<?php echo date('Y-m-d'); ?>"  name="target" id="target" class="form-control">
                                 </div>
                             </div>
                             <div class="row">
@@ -102,7 +189,7 @@ $currentUserID = get_current_user_id();  ?>
                             </div>
                             <div class="row align-items-end">
                                 <div class="form-group col-12 col-md-6">
-                                    <label>Goal Status</label>
+                                    <label>Privacy Status</label>
                                     <select class="form-control" name="status" id="status">
                                         <option value="private">Keep it private for now</option>
                                         <option value="public">Make this public to everyone</option>
@@ -129,7 +216,9 @@ $currentUserID = get_current_user_id();  ?>
 	            			if(in_array($myuser, $myconnectionsIDs)){ $i++;
 
 		            			$profile_picture = get_user_profile_picture($myuser);
-		            			$full_name = get_user_meta($myuser, 'full_name', true);
+		            			// $full_name = get_user_meta($myuser, 'full_name', true);
+                                $user = get_user_by('ID', $myuser);
+                                $username = $user->user_login;
 		            			$profile_url =get_author_posts_url($myuser); 
 		            			$table_name = $wpdb->prefix . "gdp";
 								$GDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $myuser"); 
@@ -151,10 +240,16 @@ $currentUserID = get_current_user_id();  ?>
 									$title = 'Completed a challenge!';
 		            			}else if(strpos($message,'posted a new challenge')){
 									$title = 'Posted a new challenge!';
-		            			}else if(strpos($message,'just Completed his')){
+		            			}else if(strpos($message,'just Completed')){
 									$title = 'Gaol Completed!';
 		            			}else if(strpos($message,'wrote a Point of View')){
 									$title = 'Wrote a Point of View!';
+                                }else if(strpos($message,'Good Deed Points')){
+                                    $title = 'Received Good Deed Points!';
+                                }else if(strpos($message,'Good Deed Points')){
+                                    $title = 'Received Good Deed Points!';
+                                }else if(strpos($message,'sent you alliance invitation')){
+                                    $title = 'Alliance Invitation!';
 		            			}else{
 									$title = '';
 		            			} ?>
@@ -162,10 +257,10 @@ $currentUserID = get_current_user_id();  ?>
 				                        <a href="<?php echo $profile_url ?>">
 				                    <div class="user-goal-header">
 					                        <div class="guser-profile">
-					                            <img src="<?php echo $profile_picture; ?>" class="img-fluid">
+					                            <img src="<?php echo $profile_picture; ?>" class="member-profile-img">
 					                        </div>
 					                        <div class="guser-detail">
-					                            <p><?php echo $full_name; ?></p>
+					                            <p><?php echo $username; ?></p>
 					                            <p>Good Deed Points: <?php echo $GDP; ?></p>
 					                        </div>
 				                    </div>
@@ -209,6 +304,10 @@ $currentUserID = get_current_user_id();  ?>
                 </div>
                 <div class="invite-friend">
                     <a href="<?php echo home_url('/'.InviteFriend); ?>" class="btn btn-blue">Invite a Friend</a>
+                </div>
+                <div class="goalore-dp-conn">    
+                    <?php $pcrIDs = get_user_meta($currentUserID,'pending_connection_request',true); if(empty($pcrIDs)) $pcrIDs = []; ?>
+                    <a href="<?php echo home_url('/'.PROFILE.'/'.MY_CONNECTIONS); ?>"> Connection Requests (<?php echo count($pcrIDs); ?>)</a>
                 </div>
             </div>
         </div>

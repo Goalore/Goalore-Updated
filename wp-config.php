@@ -1,10 +1,10 @@
 <?php
 # Database Configuration
-define( 'DB_NAME', 'wp_staginggoalore' );
-define( 'DB_USER', 'staginggoalore' );
-define( 'DB_PASSWORD', '4J1wnn1WkDP0qRJZJ-iL' );
-define( 'DB_HOST', '127.0.0.1' );
-define( 'DB_HOST_SLAVE', '127.0.0.1' );
+define( 'DB_NAME', 'goalore_wp_db_staging' );
+define( 'DB_USER', 'goalorewpuser@goalorewp' );
+define( 'DB_PASSWORD', 'Goalore-WP@12345' );
+define( 'DB_HOST', 'goalorewp.mysql.database.azure.com' );
+define( 'DB_HOST_SLAVE', 'goalorewp.mysql.database.azure.com' );
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', 'utf8_unicode_ci');
 $table_prefix = 'wp_';
@@ -114,13 +114,18 @@ define('WPLANG','');
 /*
  *CUSTOM ROUTES SLUGS
  */
-define(PROFILE, 'profile');
-define(MY_CONNECTIONS, 'my-connections');
-define(SETTINGS, 'settings');
-define(SearchResult, 'search-result');
-define(InviteFriend, 'invite-friend');
-define(CONTACT, 'contact');
+define('PROFILE', 'profile');
+define('MY_CONNECTIONS', 'my-connections');
+define('SETTINGS', 'settings');
+define('SearchResult', 'search-result');
+define('InviteFriend', 'invite-friend');
+define('CONTACT', 'contact');
+define('TFA_SLUG', 'two-factor-authentication');
+define('GCV2_Publick', '6LcDlCkUAAAAAMkq2ZpnSklDgYQccU2hVwjWQM5I');
+define('GCV2_Private', '6LcDlCkUAAAAAKmKwp70PjnRJvFBvGf-q9qPyYf8');
 
+
+define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL);
 
 
 

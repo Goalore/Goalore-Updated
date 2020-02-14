@@ -454,8 +454,8 @@ class WpeCommon extends WpePlugin_common {
 			wp_enqueue_script( 'wpe-common', WPE_PLUGIN_URL . '/js/wpe-common.js', array( 'jquery', 'jquery-ui-core' ), WPE_PLUGIN_VERSION );
 			wp_enqueue_script( 'wpe-dify-blog', WPE_PLUGIN_URL . '/js/dify-blog.js', array( 'jquery' ), WPE_PLUGIN_VERSION, true );
 
-			//if a deployment is underway or recently completed, lets do some stuff ... see class.deployment.php for details
-			include_once('class.deployment.php');
+			//if a deployment is underway or recently completed, lets do some stuff ... see class-wpedeployment.php for details
+			include_once('class-wpedeployment.php');
 			add_action('admin_init', array('WpeDeployment','instance'));
 
 			add_action( 'admin_print_footer_scripts', array( $this , 'print_footer_scripts') );
@@ -1547,9 +1547,7 @@ class WpeCommon extends WpePlugin_common {
 
         // Compute some values
         $blog_url = home_url();
-        $sitename = "unknown: " . __FILE__;
-        if ( preg_match( "#^/nas/wp/www/[^/]+/([^/]+)/#", __FILE__, $match ) )
-            $sitename = $match[1];
+        $sitename = PWP_NAME;
         echo( "Ensuring: $sitename - $blog_url\n" );
         add_filter( 'http_request_timeout', function() {
                     return 30;
@@ -2407,11 +2405,6 @@ function wpe_static_end($key) {
         }
 }
 
-//define("WPE_DB_DEBUG",true);
-if(defined('WPE_DB_DEBUG') AND @WPE_DB_DEBUG != false) {
-	include_once(__DIR__.'/db.php');
-}
-
 // Force the blog to be private when viewing the staging site.
 if( is_wpe_snapshot() ) {
     add_action( 'pre_option_blog_public', '__return_zero' );
@@ -2571,7 +2564,7 @@ add_action( 'wp_unregister_sidebar_widget', 'wpe_unregister_powered_by_widget' )
 
 require_once(__DIR__."/dify-widget.php");
 
-require_once( dirname( __FILE__ ) . '/class.filterplugin.php' );
+require_once(dirname(__FILE__) . '/class-filterplugin.php');
 
 function wpe_hook_plugin_api_response() {
 	new \wpe\plugin\FilterPlugin( 'content-performance', 'https://s3.amazonaws.com/wpengine-wordpress-plugins/content-performance/production/manifest.json' );

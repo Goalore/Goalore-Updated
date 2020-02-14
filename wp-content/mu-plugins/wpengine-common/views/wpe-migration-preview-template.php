@@ -1,24 +1,31 @@
 <?php
+/**
+ * WPE Migration Preview Template
+ *
+ * @package wpengine/common-mu-plugin
+ */
 
-// Set up and sanitize REQUEST data
-$domain = isset( $_REQUEST['domain'] ) ? strip_tags( $_REQUEST['domain'] ) : '';
+// Set up and sanitize REQUEST data.
+$request_domain = '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+if ( isset( $_REQUEST['domain'] ) ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$request_domain = wp_strip_all_tags( wp_unslash( $_REQUEST['domain'] ) );
+}
 $wpe_domain = PWP_NAME . '.wpengine.com';
 
-// Javascript location
+// Javascript location.
 $rewrite_script = WPMU_PLUGIN_URL . '/wpengine-common/js/wpe-rewrite.js';
 
-// Data array for script
+// Data array for script.
 $data = array(
-	'domain'      => preg_quote( $domain, '/' ),
+	'domain'      => preg_quote( $request_domain, '/' ),
 	'wpeDomain'   => $wpe_domain,
 	'replacement' => trailingslashit( "http://$wpe_domain" ),
 );
 
-// Build script data to insert
-$text = 'var WPERewriteData = ' . json_encode( $data ) . ';';
-
 // Determine whether we're doing any rewriting.
-$doing_rewrite = ( '' !== $domain && $domain != $wpe_domain );
+$doing_rewrite = ( '' !== $request_domain && $request_domain !== $wpe_domain );
 
 ?>
 <html>
@@ -32,12 +39,12 @@ $doing_rewrite = ( '' !== $domain && $domain != $wpe_domain );
 
 				var scriptdata = document.createElement( 'script' );
 				scriptdata.type = 'text/javascript';
-				scriptdata.innerText = '<?php echo $text; ?>';
+				scriptdata.innerText = 'var WPERewriteData = <?php echo wp_json_encode( $data ); ?>;';
 				iFrameHead.appendChild( scriptdata );
 
 				var myscript = document.createElement( 'script' );
 				myscript.type = 'text/javascript';
-				myscript.src = '<?php echo $rewrite_script; ?>';
+				myscript.src = '<?php echo esc_html( $rewrite_script ); ?>';
 				iFrameHead.appendChild( myscript );
 			}
 		</script>
@@ -70,7 +77,11 @@ $doing_rewrite = ( '' !== $domain && $domain != $wpe_domain );
 		<div class="header">
 			<p>WP Engine Preview<?php echo $doing_rewrite ? '' : ' - No Rewriting'; ?></p>
 		</div>
-		<iframe width="100%" height="100%" src="/" <?php if ( $doing_rewrite ) : ?>onLoad='inject()'<?php endif; ?>>
+		<iframe width="100%" height="100%" src="/" 
+		<?php
+		if ( $doing_rewrite ) :
+			?>
+			onLoad='inject()'<?php endif; ?>>
 			iframe is not supported
 		</iframe>
 	</body>

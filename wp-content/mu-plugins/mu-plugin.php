@@ -18,7 +18,7 @@ define( 'WPE_PLUGIN_VERSION', $plugin_data['Version'] );
 require_once(__DIR__."/wpengine-common/plugin.php");
 
 if ( getenv( 'WPE_HEARTBEAT_AUTOSAVE_ONLY' ) == 'on' ) {
-	require_once __DIR__ . '/wpengine-common/class.heartbeatthrottle.php';
+	require_once __DIR__ . '/wpengine-common/class-wpe-heartbeat-throttle.php';
 	$heartbeat_throttle = new WPE_Heartbeat_Throttle();
 	$heartbeat_throttle->register();
 }
@@ -27,7 +27,7 @@ if ( getenv( 'WPE_HEARTBEAT_AUTOSAVE_ONLY' ) == 'on' ) {
 // in the browser) from cache busting.
 // This feature is controlled by an environment variable, but defaulted to on.
 if ( getenv( 'WPENGINE_CLEAR_EXPIRED_COOKIES' ) !== 'off' ) {
-	require_once __DIR__ . '/wpengine-common/class.cookies.php';
+	require_once __DIR__ . '/wpengine-common/class-cookies.php';
 	\wpe\plugin\Cookies::register_hooks();
 }
 

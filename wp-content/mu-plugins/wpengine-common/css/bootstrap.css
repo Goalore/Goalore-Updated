@@ -1115,7 +1115,6 @@ button.btn.btn-mini,input[type="submit"].btn.btn-mini {
 	margin:-1px;
 	height:100%;
 }
-/*.ui-progressbar .ui-progressbar-overlay{height:100%;filter:alpha(opacity=25);opacity: 0.25;}*/
 .ui-progressbar .loading {
 	background-image:-webkit-gradient(linear,0 0,100% 100%,color-stop(.25,rgba(0,0,0,.10)),color-stop(.25,transparent),color-stop(.5,transparent),color-stop(.5,rgba(0,0,0,.10)),color-stop(.75,rgba(0,0,0,.10)),color-stop(.75,transparent),to(transparent));
 	background-image:-moz-linear-gradient(-45deg,rgba(0,0,0,.10) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.10) 50%,rgba(0,0,0,.10) 75%,transparent 75%,transparent );

@@ -988,15 +988,7 @@ object {
 .register-response label{
 	color: red !important;
 }
-.blog-detail-content ul{
-	padding-left: 20px;
-}
-.blog-detail-content ul li {
-    font-family: 'OpenSans_Regular';
-    font-size: 24px;
-    line-height: 45px;
-    color: #292929;
-}
+
 .pov-submit{
 	width: auto;
 	padding: 6px 35px;
@@ -1095,9 +1087,11 @@ object {
     color: #fff;
 }
 
-.notification-dropdown-item .ndi-img{
-    width: 32px;
-    height: auto;
+.notification-dropdown-item .ndi-img img{
+    width: 33px;
+	height: 33px;
+	object-fit: cover;
+	border-radius: 50%;
 }
 
 .user-profile-pic{
@@ -1106,8 +1100,9 @@ object {
 .pp-add-img{
 	display: none;
 	position: absolute;
-	right: 0;
-	top: 0;
+    right: -4px;
+    top: 0;
+
 }
 .pp-add-img{
 	width: 22px;
@@ -1118,28 +1113,91 @@ object {
     z-index: 9999;
 }
 
-.profile-setting-sec-btn{
-	float: right;
-}
-.profile-setting-sec-btn img{
-	width: 25px;
-	margin: 0 10px;
-}
 
-.guser-profile {
-    width: 32px;
-}
-.guser-profile img{
-	border-radius: 50%;
-}
-.goal-item-header p{
+.goal-item-header p, .search-goal-header p{
     font-family: 'OpenSans_Regular';	
     font-size: 12px;
     line-height: 17px;
 	color: #FFFFFF;
-    margin: 0;
+    margin: 10px 0 0;
 }
 .goal-item-header span.fa {
     font-size: 14px;
     margin-left: 5px;
+}
+.blue-form{
+	padding: 25px 41px;
+}
+
+.member-profile-img{
+	width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.notification-dropdown .mCSB_scrollTools .mCSB_draggerRail{
+	background-color:transparent;
+}
+.notification-dropdown .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+	background-color:#E8E8E8;
+	width: 6px;
+}
+.notification-dropdown .mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar, 
+.notification-dropdown .mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar
+{
+	background-color: #a9a9a9;
+}
+
+.goal-status{
+	width: 100%;
+	text-align: center;
+}
+.goal-status i.fa {
+    font-size: 18px;
+}
+.goal-status i.fa-check {
+	color: green;
+}
+.goal-status i.fa-minus {
+	color: red;
+}
+
+.blockedPOV {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.goal-detail-header img.img-p{
+	width: 22px;
+	height: auto;
+}
+
+.goal-item-header img.img-p, .search-goal-header img.img-p{
+	width: 18px;
+	height: auto;
+	margin-left: 5px; 
+}
+
+.pov-sub-child.pov-item-child p{
+	font-style: italic;
+}
+.pp-s-hide{
+	display: none;
+}
+.faq-section .accordion .card-body.faqs_content p {
+    padding: 0;
+    margin: 0;
+}
+.notification-dropdown-item{
+	background-color: #4185ca;
+}
+.notification-dropdown-item .ndi-msg p {
+    color: #fff;
+}
+.notification-dropdown-item.read-notification{
+	background-color: #fff;
+}
+.notification-dropdown-item.read-notification .ndi-msg p {
+    color: #292929;
 }

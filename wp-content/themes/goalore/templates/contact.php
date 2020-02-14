@@ -13,7 +13,7 @@ get_header(); ?>
             <div class="col">
                 <div class="section-header text-center">
                     <h2>Contact Us</h2>
-                    <h5>Please make user to check out the FAQ before submitting a request</h5>
+                    <h5>Please make sure to check out the FAQ before submitting a request.</h5>
                 </div>
             </div>
         </div>

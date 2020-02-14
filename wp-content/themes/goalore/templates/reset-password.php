@@ -1,4 +1,4 @@
-<?php wp_logout();
+<?php
   /**
     *
     *
@@ -48,11 +48,11 @@ if(isset($_GET['key']) && !empty($_GET['key']) && isset($_GET['login']) && !empt
                     <?php if(!empty($disabled)){ ?>
                          <form id="forgot-pwd-frm" >
                             <div class="form-group">
-                                <label>Email</label>
+                                <label>Username or Email</label>
                                 <input type="text" class="form-control" name="user_login" id="user_login" />
                             </div>
                             <div class="register-response">
-                                <label><?php echo $error;  ?></label>
+                                <label><?php //echo $error;  ?></label>
                             </div>
                             <?php wp_nonce_field( 'ajax-forgot-pwd-nonce', 'security' ); ?>
                             <button type="submit" name="reset_pwd" class="btn">Send Email</button>
@@ -61,11 +61,11 @@ if(isset($_GET['key']) && !empty($_GET['key']) && isset($_GET['login']) && !empt
                         <form id="reset-pwd-frm" >
                             <div class="form-group">
                                 <label>New Password</label>
-                                <input type="text" <?php echo $disabled; ?> class="form-control" name="new_password" id="new_password" />
+                                <input type="password" <?php echo $disabled; ?> class="form-control" name="new_password" id="new_password" />
                             </div>
                             <div class="form-group">
                                 <label>Verify Password</label>
-                                <input type="text" <?php echo $disabled; ?> class="form-control" name="verify_password" id="verify_password" />
+                                <input type="password" <?php echo $disabled; ?> class="form-control" name="verify_password" id="verify_password" />
                             </div>
                             <?php wp_nonce_field( 'ajax-reset-pwd-nonce', 'security' ); ?>
                             <input type="hidden" name="key" id="key" value="<?php echo $key; ?>">

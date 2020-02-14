@@ -38,9 +38,9 @@ send_two_factor_authentication_mail();
             <div class="col">
                 <div class="section-header text-center">
                     <h2>Two Factor Authentication</h2>
-                    <h5>We have sent you OTP in your email. OPT is only valid for next 60 minutes.</h5>
+                    <h5>We have sent you a one time password(OTP) to the registered email address. OTP is only valid for 60 minutes.</h5>
                     <?php if($sent){ ?>
-                        OTP sent(Can resent after 15 minutes).
+                        OTP sent(Can resend after 15 minutes).
                     <?php }else{ ?>
                         <a href="?resend" >Resend OTP?</a>
                     <?php } ?>

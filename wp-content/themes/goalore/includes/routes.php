@@ -62,12 +62,30 @@ add_action('init', function() {
                          exit();
                      }
                  }
+
                  //Load invite friend page
-                 if ($url_path === CONTACT) {
-                     $load = locate_template('templates/contact.php', true);
+                 if ($url_path === 'notification') {
+                     $load = locate_template('templates/notification-mobile.php', true);
                      if ($load) {
                          exit();
                      }
+                 }
+
+                 //Load invite friend page
+                 if ($url_path === 'gdp') {
+                     $load = locate_template('templates/GDP-mobile.php', true);
+                     if ($load) {
+                         exit();
+                     }
+                 }
+
+             }
+
+             //Load invite friend page
+             if ($url_path === CONTACT) {
+                 $load = locate_template('templates/contact.php', true);
+                 if ($load) {
+                     exit();
                  }
              }
 

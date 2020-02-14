@@ -15,12 +15,18 @@
       <div class="row">
          <div class="col">
             <div class="section-header text-center">
-               <?php while(have_posts()) : the_post(); the_content(); endwhile; ?>
+              <?php 
+                if(!isset($_REQUEST['update'])){
+                  while(have_posts()) : the_post(); the_content(); endwhile;
+                }else{
+                  echo '<h2>Edit Goal Categories</h2>';
+                }
+              ?>
             </div>
          </div>
       </div>
       <div class="row justify-content-center">
-         <div class="col-12 col-md-8 col-lg-5">
+         <div class="col-12 col-md-8 col-lg-6">
             <div class="blue-form ">
                <form id="user-category-frm" >
                   <div class="row">

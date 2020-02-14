@@ -10,14 +10,13 @@
  */
 global $wpdb; 
 $SearchpageUrl = site_url().'/'.SearchResult;
-$HOME = is_user_logged_in() ? get_permalink(98) : site_url();
-$CurrentUserID = get_current_user_id(); 
-?>
+$HOME = is_user_logged_in() ? get_permalink(98) : site_url(); ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
 	<head>
 		<meta charset="<?php bloginfo( 'charset' ); ?>">
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="profile" href="https://gmpg.org/xfn/11">
 		<link rel="icon" href="<?php echo get_template_directory_uri(); ?>/images/fav-icon.png" type="image/png" >
 
@@ -42,6 +41,17 @@ $CurrentUserID = get_current_user_id();
 					        </div>
 					    </form>
 					    <ul class="navbar-nav ml-auto">
+					    	<li class="nav-item active">
+					            <a class="nav-link" href="<?php the_permalink(98); ?>">Dashboard</a>
+					        </li>
+					    	<?php $CurrentUserID = get_current_user_id();  
+					    	$user_meta=get_userdata($CurrentUserID);
+					    	$user_roles=$user_meta->roles;
+					    	if(in_array("administrator", $user_roles)){ ?>
+								<li class="nav-item active">
+						            <a class="nav-link" href="<?php the_permalink(174); ?>">Tickets</a>
+						        </li>					    		
+					    	<?php } ?>
 					        <li class="nav-item active">
 					            <a class="nav-link" href="<?php the_permalink(165); ?>">Goals</a>
 					        </li>
@@ -55,83 +65,47 @@ $CurrentUserID = get_current_user_id();
 					            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					                <div class="notification-icon active-notification">
 					                    <img src="<?php echo get_template_directory_uri(); ?>/images/notification-icon.svg">
+					                    <span class="notification-count" >0</span>
 					                </div>
 					            </a>
-					            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					            	<?php 
-					            	$table_notification = $wpdb->prefix . "notification";
-					            	$SQL = ' SELECT * FROM '.$table_notification.' WHERE user_ids LIKE \'%"'. $CurrentUserID . '"%\' ORDER BY datetime DESC ' ;
-					            	$notifications = $wpdb->get_results ( $SQL );
-					            	if(!empty($notifications)){
-					            		foreach($notifications as $notif){
-					            			$profile_picture = get_user_profile_picture($notif->notifier_user_id);
-					            			$permalink = get_permalink($notif->permalink_id);
-					            			$permalink = !empty($permalink) ? $permalink : 'javascript:;';
-					            			$message = $notif->message; ?>
-					            			<a class="dropdown-item" href="<?php echo $permalink; ?>">
-							                    <div class="notification-dropdown-item">
-							                        <div class="ndi-img">
-							                            <img class="" src="<?php echo $profile_picture; ?>">
-							                        </div>
-							                        <div class="ndi-msg">
-							                            <p><?php echo $message; ?></p>
-							                        </div>
-							                    </div>
-							                </a>
-					            		<?php }
-					            	}else{ ?>
-					            		<a class="dropdown-item" href="javascript:;">
-						                    <div class="notification-dropdown-item">
-						                        <div class="ndi-msg">
-						                            <p>No Notifications</p>
-						                        </div>
-						                    </div>
-						                </a>
-					            	<?php } ?>
+					            <div class="dropdown-menu mCustomScrollbar gib-large" aria-labelledby="navbarDropdown">
+					            	<?php get_template_part('template-parts/notification','content'); ?>
 					            </div>
 					        </li>
 					        <li class="nav-item dropdown profile-dropdown">
 					            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					                <img class="user-profile-icon" src="<?php echo get_user_profile_picture(); ?>">
+					                <img class="member-profile-img" style="border: 1px solid #fff;" src="<?php echo get_user_profile_picture(); ?>">
 					            </a>
 					            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 					                <a class="dropdown-item" href="<?php echo home_url('/'.PROFILE); ?>">My Profile</a>
 					                <a class="dropdown-item" href="<?php echo home_url('/'.PROFILE.'/'.MY_CONNECTIONS); ?>">My Connections</a>
+					                <?php if(in_array("administrator", $user_roles)){ ?>
+										<a class="dropdown-item" href="<?php the_permalink(170); ?>">Admin Overview</a>
+							    	<?php } ?>
 					                <a class="dropdown-item" href="<?php the_permalink(6); ?>">FAQ</a>
 					                <a class="dropdown-item" href="<?php echo home_url('/'.PROFILE.'/'.SETTINGS); ?>">Settings</a>
+							    	<a class="dropdown-item" href="<?php the_permalink(579); ?>">Archive</a>
 					                <a class="dropdown-item" href="<?php echo home_url('/'.CONTACT); ?>">Contact Us</a>
 					                <a class="dropdown-item" href="<?php echo wp_logout_url(site_url()) ?>">Logout</a>
 					            </div>
 					        </li>
 					        <li class="nav-item dropdown good-deed-dropdown">
-					        <?php $table_name = $wpdb->prefix . "gdp";
-							$GDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $CurrentUserID"); 
-							if(empty($GDP)) $GDP = 0; 
-
-							$goalsGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $CurrentUserID AND meta_key = 'goals'"); 
-							if(empty($goalsGDP)) $goalsGDP = 0; 
-
-							$POVGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $CurrentUserID AND meta_key = 'POV'"); 
-							if(empty($POVGDP)) $POVGDP = 0; 
-							
-							$ReferralGDP = $wpdb->get_var("SELECT SUM(points) FROM $table_name WHERE user_id = $CurrentUserID AND meta_key = 'referral_user_id'"); 
-							if(empty($ReferralGDP)) $ReferralGDP = 0; 
-							?>
+					        <?php $GDP_Summary = get_gdp_summary(); ?>
 					            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					                Good deed points: <?php echo$GDP; ?>
+					                Good deed points: <?php echo $GDP_Summary['total']; ?>
 					            </a>
 					            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 					                <a class="dropdown-item" href="#">
 					                    <div class="gdpn-summary">
 					                        <h6>Summary</h6>
-					                        <p>Good Deed Points: <strong><?php echo$GDP; ?></strong></p>
+					                        <p>Good Deed Points: <strong><?php echo $GDP_Summary['total']; ?></strong></p>
 					                    </div>
 					                    <div class="gdpn-detail">
 					                        <h6>Details</h6>
-					                        <p>Opened Goalore Account: <strong>50</strong></p>
-					                        <p>Followers on Completed Goals: <strong><?php echo$goalsGDP; ?></strong></p>
-					                        <p>Point of View Ratings: <strong><?php echo$POVGDP; ?></strong></p>
-					                        <p>Referral Points: <strong><?php echo$ReferralGDP; ?></strong></p>
+					                        <p>Opened Goalore Account: <strong><?php echo $GDP_Summary['registration']; ?></strong></p>
+					                        <p>Followers on Completed Goals: <strong><?php echo $GDP_Summary['goals']; ?></strong></p>
+					                        <p>Point of View Ratings: <strong><?php echo $GDP_Summary['pov']; ?></strong></p>
+					                        <p>Referral Points: <strong><?php echo $GDP_Summary['referral']; ?></strong></p>
 					                    </div>
 					                </a>
 					            </div>
@@ -146,7 +120,7 @@ $CurrentUserID = get_current_user_id();
 			              'container'  => ''
 			            ]); ?>
 					    <form class="form-inline nav-login-form my-2 my-lg-0 login-frm" id="login-frm">
-					        <input class="form-control mr-sm-2" type="text" placeholder="Username" name="user_login" id="user_login">
+					        <input class="form-control mr-sm-2" type="text" placeholder="Username or Email" name="user_login" id="user_login">
 					        <div class="password-group">
 					            <input class="form-control mr-sm-2" type="password" placeholder="Password" name="user_pass" id="user_pass">
 					            <a href="<?php the_permalink(100); ?>" class="f-pass">Forgot Password?</a>
@@ -170,7 +144,7 @@ $CurrentUserID = get_current_user_id();
 						<div class="mobile-search-bar">
 						    <form class="form-inline search-form" action="<?php echo $SearchpageUrl; ?>">
 						        <div class="input-group">
-						            <input class="form-control border-0" value="<?php echo isset($_REQUEST['key'])?$_REQUEST['key']:''; ?>" type="search" placeholder="Search goals and people">
+						            <input class="form-control border-0" value="<?php echo isset($_REQUEST['key'])?$_REQUEST['key']:''; ?>"  type="text" name="key" placeholder="Search goals and people">
 						            <div class="input-group-append">
 						                <button class="btn btn-outline-secondary my-2 my-sm-0 border-0" type="submit"><img src="<?php echo get_template_directory_uri(); ?>/images/search-icon.svg"> </button>
 						            </div>
@@ -185,13 +159,13 @@ $CurrentUserID = get_current_user_id();
 		          <form  class="login-frm">
 		              <div class="row">
 		                  <div class="form-group col-6">
-		                      <label>Username</label>
+		                      <label>Username or Email</label>
 		                      <input type="text" class="form-control" name="user_login" id="user_login">
 		                  </div>
 		                  <div class="form-group col-6">
 		                      <label>Password</label>
 		                      <input type="password" class="form-control"  name="user_pass" id="user_pass" >
-		                      <small class="form-text text-muted"><a href="">Forgot Password?</a></small>
+		                      <small class="form-text text-muted"><a href="<?php the_permalink(100); ?>">Forgot Password?</a></small>
 		                  </div>
 		              </div>
 		              <?php wp_nonce_field( 'ajax-login-nonce', 'security' ); ?>
@@ -215,11 +189,27 @@ $CurrentUserID = get_current_user_id();
 		          </div>
 		          <div class="overlay-content">
 		              <ul>
-		                  <?php if(is_user_logged_in()){ ?>
+		                  <?php if(is_user_logged_in()){ 
+		                  	$CurrentUserID = get_current_user_id();  
+					    	$user_meta=get_userdata($CurrentUserID);
+					    	$user_roles=$user_meta->roles; ?>
+					    		<li><a href="<?php the_permalink(98); ?>">Dashboard</a></li>
+						    	<?php if(in_array("administrator", $user_roles)){ ?>
+									<li><a href="<?php the_permalink(174); ?>">Tickets</a></li>					    		
+						    	<?php } ?>
+				              	<li><a href="<?php the_permalink(165); ?>">Goals</a></li>
+				              	<li><a href="<?php the_permalink(167); ?>">Alliances</a></li>
+				                <li><a href="<?php echo home_url('gdp'); ?>">Good Deed Points</a></li>
+				              	<li><a href="<?php the_permalink(11); ?>">Blog</a></li>
+				                <li><a href="<?php echo home_url('notification'); ?>">Notification (<span class="notification-count" >0</span>)</a></li>
 				              	<li><a href="<?php echo home_url('/'.PROFILE); ?>">My Profile</a></li>
 				                <li><a href="<?php echo home_url('/'.PROFILE.'/'.MY_CONNECTIONS); ?>">My Connections</a></li>
-				                <li><a href="<?php the_permalink(6); ?>">FAQ</a></li>
 				                <li><a href="<?php echo home_url('/'.PROFILE.'/'.SETTINGS); ?>">Settings</a></li>
+				                <?php if(in_array("administrator", $user_roles)){ ?>
+									<li><a href="<?php the_permalink(170); ?>">Admin Overview</a></li>					    		
+						    	<?php } ?>
+				                <li><a href="<?php the_permalink(6); ?>">FAQ</a></li>
+						    	<li><a href="<?php the_permalink(579); ?>">Archive</a></li>
 				                <li><a href="<?php echo home_url('/'.CONTACT); ?>">Contact Us</a></li>
 				                <li><a href="<?php echo wp_logout_url(site_url()) ?>">Logout</a></li>
 				            <?php }else{ ?>

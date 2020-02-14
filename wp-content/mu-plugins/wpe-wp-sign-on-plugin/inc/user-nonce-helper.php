@@ -30,7 +30,7 @@ class UserNonceHelper {
 
 		if ( empty( $nonce_data_stored_array ) ) {
 			$user_email = $this->get_user_email_from_id( $user_id );
-			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, "Empty nonce meta data structure stored for User ({$user_email})." );
+			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, "Empty nonce meta data structure stored for User ({$user_email}).", $user_email, PWP_NAME );
 			return false;
 		}
 
@@ -77,22 +77,25 @@ class UserNonceHelper {
 			$user_email = $this->get_user_email_from_id( $user_id );
 			// phpcs:ignore
 			$object_contents = print_r( $nonce_data_stored, true );
-			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, "Invalid nonce meta data structure for User ({$user_email}).\r\nContents:\r\n{$object_contents}." );
+			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, "Invalid nonce meta data structure for User ({$user_email}).\r\nContents:\r\n{$object_contents}.", $user_email, PWP_NAME );
 			return false;
 		}
 		if ( $this->has_nonce_expired( $nonce_data_stored->expiration, $current_time ) ) {
 			$this->delete_nonce( $user_id, $nonce_data_stored );
 			$user_email      = $this->get_user_email_from_id( $user_id );
 			$time_difference = $current_time - $nonce_data_stored->expiration;
-			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, "Nonce {$nonce_data_stored->nonce} has expired by {$time_difference} seconds for User ({$user_email})." );
+			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, "Nonce {$nonce_data_stored->nonce} has expired by {$time_difference} seconds for User ({$user_email}).", $user_email, PWP_NAME );
 			return false;
 		}
 
 		if ( ( $this->hash_nonce( $nonce ) !== $nonce_data_stored->nonce ) || ( $nonce_data_stored->install_name !== $install_name ) ) {
+			$user_email = $this->get_user_email_from_id( $user_id );
 			Logger::log(
 				Logger::NONCE_META_DATA_VALIDATION_ERROR,
 				"Nonce stored ({$nonce_data_stored->nonce}) is not equal to nonce in the request ({$nonce}) OR \
-				the install name stored ({$nonce_data_stored->install_name}) is not equal to install name in the request ({$install_name})."
+				the install name stored ({$nonce_data_stored->install_name}) is not equal to install name in the request ({$install_name}).",
+				$user_email,
+				PWP_NAME
 			);
 			return false;
 		}

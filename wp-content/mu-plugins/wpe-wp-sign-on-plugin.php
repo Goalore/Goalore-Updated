@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: WPE Seamless Login Plugin
+ * Plugin Name: WP Engine Seamless Login Plugin
  * Plugin URI:  https://www.wpengine.com
- * Description: Seamless Sign On Plugin
- * Version:     1.2.0
+ * Description: WP Engine Seamless Login Plugin
+ * Version:     1.5.1
  * Author:      WP Engine
  *
  * @package wpengine\sign_on_plugin
@@ -19,11 +19,12 @@ require_once __DIR__ . '/wpe-wp-sign-on-plugin/inc/logger.php';
 require_once __DIR__ . '/wpe-wp-sign-on-plugin/inc/sign-on-user-provider.php';
 require_once __DIR__ . '/wpe-wp-sign-on-plugin/inc/custom-exceptions.php';
 
+use WP_Error;
 use wpengine\sign_on_plugin\UserNonceHelper;
 use wpengine\sign_on_plugin\Logger;
 use wpengine\sign_on_plugin\SignOnUserProvider;
 
-const BASE_URL = '/wpe_sign_on_plugin/v1';
+const BASE_URL = 'wpe_sign_on_plugin/v1';
 
 WPESignOnPlugin::initialize();
 
@@ -40,7 +41,7 @@ class WPESignOnPlugin {
 	public static $instance;
 
 	private $login_route  = '/index.php';
-	private $login_params = array( 'rest_route' => BASE_URL . '/login' );
+	private $login_params = array( 'rest_route' => '/' . BASE_URL . '/login' );
 	private $sign_on_user_provider;
 	private $user_nonce_helper;
 
@@ -62,8 +63,18 @@ class WPESignOnPlugin {
 					BASE_URL,
 					'/login',
 					array(
-						'methods'  => 'GET',
-						'callback' => [ self::$instance, 'login' ],
+						'methods'             => 'GET',
+						'callback'            => array( self::$instance, 'login' ),
+						'permission_callback' => array( self::$instance, 'permission_check' ),
+					)
+				);
+				register_rest_route(
+					BASE_URL,
+					'/is_user_logged_in',
+					array(
+						'methods'             => 'GET',
+						'callback'            => array( self::$instance, 'is_user_logged_in' ),
+						'permission_callback' => array( self::$instance, 'permission_check' ),
 					)
 				);
 			}
@@ -75,6 +86,15 @@ class WPESignOnPlugin {
 
 	}
 
+	public function permission_check( $request ) {
+		$referer = $request->get_header( 'referer' );
+		if ( null !== $referer && strpos( $referer, 'wp-json' ) !== false ) {
+			Logger::log( Logger::WP_JSON_REFERER_ERROR, 'Request coming from wp-json' );
+			return new WP_Error( 'bad_request', __( 'Bad request' ), array( 'status' => 400 ) );
+		}
+		return true;
+	}
+
 	public function login( $request ) {
 		$time_start = round( microtime( true ) * 1000 );
 
@@ -84,7 +104,7 @@ class WPESignOnPlugin {
 			}
 
 			if ( ! is_ssl() && force_ssl_admin() ) {
-				return $this->generate_https_login_response( $request->get_query_params() );
+				return $this->generate_https_redirect( $request->get_query_params() );
 			}
 
 			list( $nonce, $user_email, $install_name ) = $this->get_params_from_login_request( $request );
@@ -110,16 +130,61 @@ class WPESignOnPlugin {
 				$redirect_url = self::REDIRECT_URL_ON_SUCCESS;
 			}
 		} catch ( InvalidInstallNameException $e ) {
-			Logger::log( Logger::INSTALL_NAME_ERROR, $e->getMessage() );
+			Logger::log( Logger::INSTALL_NAME_ERROR, $e->getMessage(), $user_email, PWP_NAME );
 			$redirect_url = self::REDIRECT_URL_ON_ERROR;
 		} catch ( NonceMetaDataValidationException $e ) {
-			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, $e->getMessage() );
+			Logger::log( Logger::NONCE_META_DATA_VALIDATION_ERROR, $e->getMessage(), $user_email, PWP_NAME );
+			$redirect_url = self::REDIRECT_URL_ON_ERROR;
+		} catch ( MultisiteEnabledException $e ) {
+			Logger::log( Logger::MULTISITE_ENABLED_ERROR, $e->getMessage(), null, PWP_NAME );
+			$redirect_url = self::REDIRECT_URL_ON_ERROR;
+		} catch ( \Exception $e ) {
+			Logger::log( Logger::GENERAL_EXCEPTION_ERROR, $e->getMessage(), isset( $user_email ) ? $user_email : null, PWP_NAME );
+			$redirect_url = self::REDIRECT_URL_ON_ERROR;
+		}
+
+		$response = new \WP_REST_Response( null, 307, array( 'Location' => $redirect_url ?? self::REDIRECT_URL_ON_ERROR ) );
+
+		return $response;
+	}
+
+	public function is_user_logged_in( $request ) {
+		list( $install_id, $install_name, $user_email, $referer ) = $this->get_params_from_is_logged_in_request( $request );
+
+		try {
+			if ( is_multisite() ) {
+				throw new MultisiteEnabledException();
+			}
+
+			if ( ! is_ssl() && force_ssl_admin() ) {
+				return $this->generate_https_redirect( $request->get_query_params() );
+			}
+
+			if ( ! $this->validate_install_name( $install_name ) ) {
+				throw new InvalidInstallNameException( 'Expected: ' . PWP_NAME . ' ; Received: ' . $install_name );
+			}
+
+			if ( $this->sign_on_user_provider->user_email_matches_current_user( $user_email ) ) {
+				Logger::log( Logger::USER_LOGGED_IN, 'User ' . $user_email . ' already logged in.', $user_email, PWP_NAME );
+				$redirect_url = self::REDIRECT_URL_ON_SUCCESS;
+			} else {
+				if ( null === $referer ) {
+					throw new NoRefererException( 'No referer provided for user logged in check' );
+				}
+				Logger::log( Logger::USER_NOT_LOGGED_IN, 'User ' . $user_email . ' not logged in. Beginning flow.', $user_email, PWP_NAME );
+				$redirect_url = $referer . '?' . http_build_query( $this->create_is_logged_in_response_params( $install_id ) );
+			}
+		} catch ( InvalidInstallNameException $e ) {
+			Logger::log( Logger::INSTALL_NAME_ERROR, $e->getMessage(), $user_email, PWP_NAME );
+			$redirect_url = self::REDIRECT_URL_ON_ERROR;
+		} catch ( NoRefererException $e ) {
+			Logger::log( Logger::NO_REFERER_ERROR, $e->getMessage(), $user_email, PWP_NAME );
 			$redirect_url = self::REDIRECT_URL_ON_ERROR;
 		} catch ( MultisiteEnabledException $e ) {
 			Logger::log( Logger::MULTISITE_ENABLED_ERROR, $e->getMessage() );
 			$redirect_url = self::REDIRECT_URL_ON_ERROR;
 		} catch ( \Exception $e ) {
-			Logger::log( Logger::GENERAL_EXCEPTION_ERROR, $e->getMessage() );
+			Logger::log( Logger::GENERAL_EXCEPTION_ERROR, $e->getMessage(), isset( $user_email ) ? $user_email : null, PWP_NAME );
 			$redirect_url = self::REDIRECT_URL_ON_ERROR;
 		}
 
@@ -146,6 +211,15 @@ class WPESignOnPlugin {
 		$install_name = $request->get_param( 'install_name' );
 
 		return array( $nonce, $user_email, $install_name );
+	}
+
+	private function get_params_from_is_logged_in_request( $request ) {
+		$install_id   = $request->get_param( 'install_id' );
+		$install_name = $request->get_param( 'install_name' );
+		$user_email   = $request->get_param( 'user_email' );
+		$referer      = $request->get_param( 'redirect_url' );
+
+		return array( $install_id, $install_name, $user_email, $referer );
 	}
 
 	private function wpe_sso( $assoc_args ) {
@@ -243,10 +317,18 @@ class WPESignOnPlugin {
 		return is_string( $string ) && ! empty( trim( $string ) );
 	}
 
-	private function generate_https_login_response( $query_params ) {
+	private function generate_https_redirect( $query_params ) {
 		$query_string = http_build_query( $query_params );
 		$redirect_url = get_site_url( null, $this->login_route, 'https' );
 		$response     = new \WP_REST_Response( null, 307, array( 'Location' => $redirect_url . '?' . $query_string ) );
 		return $response;
+	}
+
+	private function create_is_logged_in_response_params( $install_id ) {
+		$params = array(
+			'install_id' => $install_id,
+			'initiate'   => true,
+		);
+		return $params;
 	}
 }

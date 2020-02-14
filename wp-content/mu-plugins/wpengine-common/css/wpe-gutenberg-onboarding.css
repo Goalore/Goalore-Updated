@@ -1,26 +1,26 @@
 /**
  * WP Engine Gutenberg Onboarding
  */
- .wpe-gutenberg-panel {
+.wpe-gutenberg-panel {
 	position: relative;
 	overflow: auto;
 	margin: 16px 0;
- 	padding: 23px 10px 0;
- 	border: 1px solid #e5e5e5;
- 	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
- 	background: #fff;
- 	font-size: 13px;
-    line-height: 2.1em;
+	padding: 23px 10px 0;
+	border: 1px solid #e5e5e5;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+	background: #fff;
+	font-size: 13px;
+	line-height: 2.1em;
 }
 
 .wpe-gutenberg-panel h2 {
 	margin: 0;
 	font-size: 21px;
 	font-weight: 400;
- 	line-height: 1.2;
- }
+	line-height: 1.2;
+}
 
- .wpe-gutenberg-panel h3 {
+.wpe-gutenberg-panel h3 {
 	margin: 17px 0 0;
 	font-size: 16px;
 	line-height: 1.4;
@@ -53,10 +53,10 @@
 	position: absolute;
 	z-index: 10;
 	top: 10px;
- 	right: 10px;
- 	padding: 10px 15px 10px 21px;
- 	font-size: 13px;
- 	line-height: 1.23076923; /* Chrome rounding, needs to be 16px equivalent */
+	right: 10px;
+	padding: 10px 15px 10px 21px;
+	font-size: 13px;
+	line-height: 1.23076923; /* Chrome rounding, needs to be 16px equivalent */
 	text-decoration: none;
 }
 
@@ -64,14 +64,14 @@
 	position: absolute;
 	top: 8px;
 	left: 0;
- 	transition: all .1s ease-in-out;
- }
+	transition: all .1s ease-in-out;
+}
 
- .wpe-gutenberg-panel .wpe-gutenberg-panel-close:before {
-     position: absolute;
-     top: 8px;
-     left: 0;
-    transition: all .1s ease-in-out;
+.wpe-gutenberg-panel .wpe-gutenberg-panel-close:before {
+	position: absolute;
+	top: 8px;
+	left: 0;
+	transition: all .1s ease-in-out;
 }
 
 .wpe-gutenberg-panel-content {
@@ -212,19 +212,19 @@
 		overflow: hidden;
 		text-indent: 40px;
 		white-space: nowrap;
- 		width: 20px;
- 		height: 20px;
- 		padding: 5px;
- 		top: 5px;
- 		right: 5px;
-    }
+		width: 20px;
+		height: 20px;
+		padding: 5px;
+		top: 5px;
+		right: 5px;
+	}
 
-    /* Make the close icon larger for tappability. */
-    .wpe-gutenberg-panel .wpe-gutenberg-panel-close:before {
-        font-size: 20px;
-        top: 5px;
-        left: -35px;
-    }
+	/* Make the close icon larger for tappability. */
+	.wpe-gutenberg-panel .wpe-gutenberg-panel-close:before {
+		font-size: 20px;
+		top: 5px;
+		left: -35px;
+	}
 }
 
 .wpe-button-primary {
@@ -252,5 +252,5 @@
 .wp-core-ui .update.network,
 .wp-core-ui .install-classic-editor.network,
 .wp-core-ui .activate-classic-editor.network {
-    padding: 0 12px;
+	padding: 0 12px;
 }
