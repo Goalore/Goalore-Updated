@@ -15,6 +15,7 @@ $currentUserID = get_current_user_id();
 $backlink = get_permalink(167);
 
 $members = !isset($members) ? get_post_meta($AllianceID,'members',true) : $members;
+if(!empty($members)) $members = array_unique($members);
 $allMembers = $members;
 if(empty($members)){
 	$allMembers = $members = [];

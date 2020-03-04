@@ -213,7 +213,20 @@ $currentUserID = get_current_user_id();  ?>
 	            	if(!empty($notifications)){ $i = 0;
 	            		foreach($notifications as $notif){ 
 	            			$myuser = $notif->notifier_user_id;
-	            			if(in_array($myuser, $myconnectionsIDs)){ $i++;
+	            			if(in_array($myuser, $myconnectionsIDs)){ 
+
+                                $post_type = get_post_type( $notif->permalink_id );
+                                $pstatus = '';
+                                if($post_type == 'goals'){
+                                    $pstatus = get_field('status',$notif->permalink_id);
+                                }else if($post_type == 'alliances'){
+                                    $pstatus = get_field('privacy_status',$notif->permalink_id);
+                                }
+                                if(!empty($pstatus) && $pstatus == 'private'){
+                                    continue;
+                                }
+                                
+                                $i++;
 
 		            			$profile_picture = get_user_profile_picture($myuser);
 		            			// $full_name = get_user_meta($myuser, 'full_name', true);
@@ -226,7 +239,7 @@ $currentUserID = get_current_user_id();  ?>
 
 		            			$permalink = get_permalink($notif->permalink_id);
 		            			$permalink = !empty($permalink) ? $permalink : 'javascript:;';
-		            			 $message = $notif->message;
+		            			$message = $notif->message;
 		            			
 		            			if(strpos($message,'started a new goal')){
 									$title = 'Started a new goal!';
@@ -250,6 +263,10 @@ $currentUserID = get_current_user_id();  ?>
                                     $title = 'Received Good Deed Points!';
                                 }else if(strpos($message,'sent you alliance invitation')){
                                     $title = 'Alliance Invitation!';
+                                    continue;
+                                }else if(strpos($message,'connection request received ')){
+                                    $title = 'Connection Request Received !';
+                                    continue;
 		            			}else{
 									$title = '';
 		            			} ?>
@@ -275,7 +292,7 @@ $currentUserID = get_current_user_id();  ?>
 				                        <p><?php echo $message ?></p>
 				                    </div>
 				                </div>
-			            	<?php }
+			            	<?php } 
 			            if($i==3) break;
 			        	 }
 			        } 

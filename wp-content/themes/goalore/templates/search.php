@@ -223,11 +223,11 @@ if(!empty($memberIDs)){
 					                                        </div>
 					                                        <div class="gib-item">
 					                                            <img src="<?php echo get_template_directory_uri(); ?>/images/goal-pov.svg" class="img-fluid">
-					                                            <h6><?php echo $challengesCount; ?></h6>
+					                                            <h6><?php echo $povCount; ?></h6>
 					                                        </div>
 					                                        <div class="gib-item">
 					                                            <img src="<?php echo get_template_directory_uri(); ?>/images/goal-challenges.svg" class="img-fluid">
-					                                            <h6><?php echo $povCount; ?></h6>
+					                                            <h6><?php echo $challengesCount; ?></h6>
 					                                        </div>
 					                                        <div class="gib-item">
 					                                            <img src="<?php echo get_template_directory_uri(); ?>/images/goal-attachments.svg" class="img-fluid">

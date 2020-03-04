@@ -23,9 +23,8 @@ const { registerBlockType } = wp.blocks;
 const {
 	InnerBlocks,
 	AlignmentToolbar,
-	BlockControls,
-	BlockAlignmentToolbar
-} = wp.editor;
+	BlockControls
+} = wp.blockEditor;
 
 const {
 	Fragment
@@ -38,7 +37,9 @@ const ALLOWED_BLOCKS = [
 	'atomic-blocks/ab-pricing-table-title',
 	'atomic-blocks/ab-pricing-table-button',
 	'core/paragraph',
-	'core/image'
+	'core/image',
+	'core/html',
+	'core/shortcode'
 ];
 
 class ABPricingTableBlock extends Component {
@@ -54,8 +55,6 @@ class ABPricingTableBlock extends Component {
 			padding,
 			alignment
 		},
-			isSelected,
-			className,
 			setAttributes
 		} = this.props;
 
@@ -187,6 +186,24 @@ registerBlockType( 'atomic-blocks/ab-pricing-table', {
 			type: 'number'
 		}
 	},
+
+	ab_settings_data: {
+        ab_pricing_inner_padding: {
+            title: __( 'Pricing Column Padding', 'atomic-blocks' )
+        },
+        ab_pricing_inner_borderWidth: {
+            title: __( 'Pricing Column Border', 'atomic-blocks' )
+		},
+		ab_pricing_inner_borderRadius: {
+            title: __( 'Pricing Column Border Radius', 'atomic-blocks' )
+		},
+		ab_pricing_inner_borderColor: {
+            title: __( 'Pricing Column Border Color', 'atomic-blocks' )
+		},
+		ab_pricing_inner_colorSettings: {
+            title: __( 'Pricing Column Background Color', 'atomic-blocks' )
+		}
+    },
 
 	// Render the block components
 	edit: ABPricingTableBlock,

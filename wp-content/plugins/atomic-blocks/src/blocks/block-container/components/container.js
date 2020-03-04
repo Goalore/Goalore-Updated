@@ -20,7 +20,23 @@ export default class Container extends Component {
 	render() {
 
 		// Setup the attributes
-		const { attributes: { containerBackgroundColor, containerAlignment, containerPaddingTop, containerPaddingRight, containerPaddingBottom, containerPaddingLeft, containerMarginTop, containerMarginBottom, containerWidth, containerMaxWidth }  } = this.props;
+		const {
+			attributes: {
+				containerBackgroundColor,
+				containerAlignment,
+				containerPaddingTop,
+				containerPaddingRight,
+				containerPaddingBottom,
+				containerPaddingLeft,
+				containerMarginTop,
+				containerMarginBottom,
+				containerWidth,
+				containerMaxWidth,
+				containerImgURL,
+				containerImgAlt,
+				containerDimRatio
+			}
+		} = this.props;
 
 		const styles = {
 			backgroundColor: containerBackgroundColor ? containerBackgroundColor : undefined,
@@ -44,7 +60,40 @@ export default class Container extends Component {
 			<div
 				style={ styles }
 				className={ className ? className : undefined }
-			>{ this.props.children }</div>
+			>
+				<div className="ab-container-inside">
+					{ containerImgURL && !! containerImgURL.length && (
+						<div className="ab-container-image-wrap">
+							<img
+								className={ classnames(
+									'ab-container-image',
+									dimRatioToClass( containerDimRatio ),
+									{
+										'has-background-dim': 0 !== containerDimRatio
+									}
+								) }
+								src={ containerImgURL }
+								alt={ containerImgAlt }
+							/>
+						</div>
+					) }
+
+					<div
+						className="ab-container-content"
+						style={ {
+							maxWidth: containerMaxWidth ? `${containerMaxWidth}px` : undefined
+						} }
+					>
+						{ this.props.children }
+					</div>
+				</div>
+			</div>
 		);
 	}
+}
+
+function dimRatioToClass( ratio ) {
+	return ( 0 === ratio || 50 === ratio ) ?
+		null :
+		'has-background-dim-' + ( 10 * Math.round( ratio / 10 ) );
 }

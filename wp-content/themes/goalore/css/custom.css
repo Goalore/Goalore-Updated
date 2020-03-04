@@ -726,6 +726,7 @@ footer{
 	display: flex;
 	background-color: #ffffff;
 	align-items: center;
+	cursor: pointer;
 }
 
 .faq-section .accordion .card-header img{

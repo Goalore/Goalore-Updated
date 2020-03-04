@@ -93,7 +93,7 @@ add_action( 'wp_ajax_nopriv_validate_username',function(){
 	$username = $_POST['username'];
 	if(validate_username($username)){
 		if(username_exists($username)){
-			$response['msg'] = "The username '".$username."' is already in use.";		
+			$response['msg'] = "The username '".$username."' is already in use";		
 		}else{
 			$response['status'] = 'success';
 			$response['msg'] = "The username '".$username."' is available";
@@ -113,10 +113,12 @@ function validate_email(){
 	$email = $_POST['email'];
 	if(is_email($email)){
 		if(email_exists($email)){
-			$response['msg'] = "The email '".$email."' is already in use.";		
+			// $response['msg'] = "The email '".$email."' is already in use";		
+			$response['msg'] = "Email address is already in use";		
 		}else{
 			$response['status'] = 'success';
-			$response['msg'] = "The email '".$email."' is available";
+			// $response['msg'] = "The email '".$email."' is available";
+			$response['msg'] = "Email address is valid";
 		}
 	}else $response['msg'] = 'Invalid Email!';
 	echo json_encode($response);
@@ -1319,21 +1321,27 @@ add_action('wp_ajax_join_alliance',function(){
 
 	$currentUserID = (string) get_current_user_id();
 	$members = get_post_meta($alliance_id,'members',true);
-	if(empty($members)) $members=[]; 
-	array_push($members, $currentUserID);
-	$udpate = update_post_meta($alliance_id,'members',$members);
-	if($udpate){
-		
-		$alliance_invitation = get_user_meta($currentUserID,'alliance_invitation',true);
-		if(isset($alliance_invitation[$alliance_id])){
-			unset($alliance_invitation[$alliance_id]);
-			update_user_meta($currentUserID,'alliance_invitation',$alliance_invitation);
+	if(empty($members)) $members=[];
+	$IDkey = array_search($currentUserID, $members);
+	if(!$IDkey){
+		array_push($members, $currentUserID);
+		$udpate = update_post_meta($alliance_id,'members',$members);
+		if($udpate){
+			
+			$alliance_invitation = get_user_meta($currentUserID,'alliance_invitation',true);
+			if(isset($alliance_invitation[$alliance_id])){
+				unset($alliance_invitation[$alliance_id]);
+				update_user_meta($currentUserID,'alliance_invitation',$alliance_invitation);
+			}
+
+			$response['status'] = 'success';
+			$response['msg'] = 'Alliance Joined Successfully!';
+
 		}
-
-		$response['status'] = 'success';
-		$response['msg'] = 'Alliance Joined Successfully!';
-
+	}else{
+		$response['msg'] = 'Already member of this alliance!';
 	}
+	
 	echo json_encode($response);
 	wp_die();
 });

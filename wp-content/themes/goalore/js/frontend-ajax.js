@@ -75,6 +75,9 @@ jQuery(document).ready(function($) {
 					}
 					$this.find('button[type="submit"]').attr('disabled',false);
 		        },
+		        complete: function(){
+					$this.find('button[type="submit"]').attr('disabled',false);
+		        },
 		        error: function( response ) {
 		        	alertify.notify('An error occurred', 'error', 5).dismissOthers();
 		        },
@@ -168,6 +171,9 @@ jQuery(document).ready(function($) {
 		var security = $.trim($this.find('#security').val());
 		if(new_password == ''){
 			alertify.notify('Please Enter New Password!', 'error', 5).dismissOthers();
+			return false;
+		}else if(new_password.length < 8){
+			alertify.notify('Password length must be at least 8 characters!', 'error', 5).dismissOthers();
 			return false;
 		}else if(verify_password == ''){
 			alertify.notify('Please Enter Verify Password!', 'error', 5).dismissOthers();
@@ -374,6 +380,9 @@ jQuery(document).ready(function($) {
 			return false;
 		}else if(password == ''){
 			alertify.notify('Enter Password!', 'error', 5).dismissOthers();
+			return false;
+		}else if(password.length < 8){
+			alertify.notify('Password length must be at least 8 characters!', 'error', 5).dismissOthers();
 			return false;
 		}else if(verify_password == ''){
 			alertify.notify('Enter Verify Password!', 'error', 5).dismissOthers();

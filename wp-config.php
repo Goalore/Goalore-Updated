@@ -1,6 +1,8 @@
 <?php
 # Database Configuration
-define( 'DB_NAME', 'goalore_wp_db_staging' );
+define('WP_CACHE', true);
+define( 'WPCACHEHOME', '/home2/wakl5a0agli2/public_html/wp-content/plugins/wp-super-cache/' );
+define( 'DB_NAME', 'goalore_wp_db' );
 define( 'DB_USER', 'goalorewpuser@goalorewp' );
 define( 'DB_PASSWORD', 'Goalore-WP@12345' );
 define( 'DB_HOST', 'goalorewp.mysql.database.azure.com' );
@@ -24,11 +26,10 @@ define('NONCE_SALT',       'l$n|l_|q&s BhIfl~E+;R8@v-L&u)y=ZJ!$Q[F1+.8dvg+g8?oVN
 
 define( 'WP_DEBUG', true );
 
-define( 'WP_CACHE', TRUE );
 
 define( 'WP_AUTO_UPDATE_CORE', false );
 
-define( 'PWP_NAME', 'staginggoalore' );
+define( 'PWP_NAME', 'goaloreapp' );
 
 define( 'FS_METHOD', 'direct' );
 
@@ -38,7 +39,7 @@ define( 'FS_CHMOD_FILE', 0664 );
 
 define( 'PWP_ROOT_DIR', '/nas/wp' );
 
-define( 'WPE_APIKEY', 'b904d27f4f76774d218c966a3d73ad662515cd3c' );
+define( 'WPE_APIKEY', '95e799e7d23251472c53a7a02e719e8dd8ab8065' );
 
 define( 'WPE_CLUSTER_ID', '100962' );
 
@@ -88,13 +89,13 @@ $wpe_no_cdn_uris=array ( );
 
 $wpe_content_regexs=array ( );
 
-$wpe_all_domains=array ( 0 => 'staginggoalore.wpengine.com', );
+$wpe_all_domains=array ( 0 => 'goalore.com', 1 => 'www.goalore.com', 2 => 'goaloreapp.wpengine.com', );
 
 $wpe_varnish_servers=array ( 0 => 'pod-100962', );
 
 $wpe_special_ips=array ( 0 => '104.197.244.27', );
 
-$wpe_netdna_domains=array ( );
+$wpe_netdna_domains=array ( 0 =>  array ( 'match' => 'goaloreapp.wpengine.com', 'zone' => '47cybs3hu8721uhtcn26spsm', 'enabled' => true, ), 1 =>  array ( 'match' => 'www.goalore.com', 'zone' => '379ika3tb58r408js53iky2c', 'enabled' => true, ), 2 =>  array ( 'match' => 'goalore.com', 'zone' => '3gwksy3iee6u3detnyi134li', 'enabled' => true, ), );
 
 $wpe_netdna_domains_secure=array ( );
 

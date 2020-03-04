@@ -129,7 +129,7 @@ export default class LayoutsProvider extends Component {
 		wp.apiFetch(
 			{
 				'method': 'GET',
-				'path': '/atomicblocks/v1/layouts/all'
+				'path': '/atomicblocks/v1/layouts/all?filter=allowed'
 			}
 		).then( async components => {
 			let layouts = [];
@@ -167,7 +167,8 @@ export default class LayoutsProvider extends Component {
 	}
 
 	render() {
-		return (
+		if ( this.state.all ) {
+			return (
 				<LayoutsContext.Provider value={{
 					favorites: this.state.favorites,
 					favoriteKeys: this.state.favoriteKeys,
@@ -194,6 +195,9 @@ export default class LayoutsProvider extends Component {
 				}}>
 					{this.props.children}
 				</LayoutsContext.Provider>
-		);
+			);
+		} else {
+			return null;
+		}
 	}
 }

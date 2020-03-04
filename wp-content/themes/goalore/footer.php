@@ -17,8 +17,11 @@
           <div class="col">
             <div class="site-footer">
               <div class="site-footer-logo">
+                <?php $HOME = is_user_logged_in() ? get_permalink(98) : site_url(); ?>
+                <a href="<?php echo $HOME; ?>">
                 <!-- <img src="<?php echo get_template_directory_uri(); ?>/images/footer-logo.svg"> -->
-                <img src="<?php echo get_template_directory_uri(); ?>/images/logo.svg">
+                  <img src="<?php echo get_template_directory_uri(); ?>/images/logo.svg">
+                </a>
               </div>
               <div class="site-footer-navigation">
                 <ul class="list-inline">

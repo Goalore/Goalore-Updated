@@ -38,7 +38,7 @@ const blockAttributes = {
 	},
 	accordionFontSize: {
 		type: 'number',
-		default: null
+		default: undefined
 	},
 	accordionOpen: {
 		type: 'boolean',
@@ -58,6 +58,15 @@ registerBlockType( 'atomic-blocks/ab-accordion', {
 		__( 'atomic', 'atomic-blocks' )
 	],
 	attributes: blockAttributes,
+
+	ab_settings_data: {
+        ab_accordion_accordionFontSize: {
+            title: __( 'Title Font Size', 'atomic-blocks' )
+        },
+        ab_accordion_accordionOpen: {
+            title: __( 'Open by default', 'atomic-blocks' )
+        }
+    },
 
 	// Render the block components
 	edit: props => {
